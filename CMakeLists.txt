@@ -120,6 +120,21 @@ if(KEEPSAKE_WITH_WOLFRAM)
         src/sync/wolfram_record_store.cpp
         src/sync/firehose_watch.cpp
     )
+
+    # The one part of the firehose reader that couldn't be exercised
+    # against live data during development (see AGENTS.md — wss://
+    # connections were blocked in that environment) gets a synthetic
+    # round-trip test instead: encode a real record, wrap it in a real
+    # CAR block, decode it back with the exact function the live path
+    # calls. No network access needed.
+    enable_testing()
+    add_executable(firehose_decode_test
+        test/firehose_decode_test.cpp
+        src/sync/firehose_watch.cpp
+    )
+    target_include_directories(firehose_decode_test PRIVATE src)
+    target_link_libraries(firehose_decode_test PRIVATE wolfram)
+    add_test(NAME firehose_decode_test COMMAND firehose_decode_test)
 endif()
 
 add_executable(keepsake ${KEEPSAKE_SOURCES})

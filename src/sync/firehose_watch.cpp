@@ -45,6 +45,23 @@ std::string cborString(const wf_cbor_item *item) {
     return std::string(item->string.str, item->string.len);
 }
 
+} // namespace
+
+bool decodeEventRecord(const unsigned char *data, size_t len,
+                       DecodedEvent &out) {
+    wf_cbor_item *record = wf_cbor_parse(data, len);
+    if (record == nullptr) return false;
+
+    out.kind = cborString(cborMapGet(record, "kind"));
+    out.locationId = cborString(cborMapGet(record, "locationId"));
+    out.detail = cborString(cborMapGet(record, "detail"));
+
+    wf_cbor_free(record);
+    return !out.kind.empty() || !out.locationId.empty();
+}
+
+namespace {
+
 struct EventContext {
     std::ostream *out;
 };
@@ -62,20 +79,14 @@ void printEventRecord(const wf_subscribe_commit &commit,
 
     wf_car_block *block = wf_car_find_block(&car, &op.cid);
     if (block != nullptr) {
-        wf_cbor_item *record = wf_cbor_parse(block->data, block->data_len);
-        if (record != nullptr) {
-            std::string kind = cborString(cborMapGet(record, "kind"));
-            std::string locationId =
-                cborString(cborMapGet(record, "locationId"));
-            std::string detail = cborString(cborMapGet(record, "detail"));
-
+        DecodedEvent decoded;
+        if (decodeEventRecord(block->data, block->data_len, decoded)) {
             out << "[" << commit.did << "] "
-                << (kind.empty() ? "(unknown event)" : kind) << " at "
-                << (locationId.empty() ? "?" : locationId);
-            if (!detail.empty()) out << ": " << detail;
+                << (decoded.kind.empty() ? "(unknown event)" : decoded.kind)
+                << " at "
+                << (decoded.locationId.empty() ? "?" : decoded.locationId);
+            if (!decoded.detail.empty()) out << ": " << decoded.detail;
             out << "\n" << std::flush;
-
-            wf_cbor_free(record);
         }
     }
     wf_car_free(&car);
