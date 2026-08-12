@@ -1,0 +1,26 @@
+# Build output
+build*/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# Local save data (game writes real saves outside the repo; this only
+# catches a save file dropped in-tree during ad hoc local testing)
+*.keepsake-save.json
+
+# IDE configurations
+.idea/
+.vscode/
+*.iml
+
+# Local agent/worktree state
+.claude/
+.agents/
+.codex/
+
+# OS
+.DS_Store
+Thumbs.db
