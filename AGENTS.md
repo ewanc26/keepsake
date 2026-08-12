@@ -107,11 +107,19 @@ cmake --build build
 Add `-DKEEPSAKE_WITH_WOLFRAM=OFF` to build the local-only game with no
 network code at all.
 
-There is no test suite yet. "Verified" means the build is clean and a
-playthrough was actually run — walk from the gatehouse to the undercroft,
-fight the boss, save, and reload — not that `cmake --build` exited 0. For
-anything touching `oauth/`/`sync/wolfram_record_store.*`, "verified" means
-run against real infrastructure where possible (discovery, resolution, and
+`ctest` runs unit tests for `quest`, `combat`, `save/json`, `save`,
+`dialogue`, and `identity` (`quest_test`/`combat_test`/`json_test`/
+`save_test`/`dialogue_test`/`identity_test` — registered unconditionally,
+no wolfram link needed), plus `firehose_decode_test` under
+`KEEPSAKE_WITH_WOLFRAM=ON`. `world/` and `entity/`'s item/combat helpers
+are exercised indirectly through `combat_test`/`dialogue_test`/`save_test`
+but have no dedicated test file yet; there is also still no automated test
+for the game loop itself (`ui/terminal.cpp`). "Verified" for end-to-end
+play means the build is clean, `ctest` passes, and a playthrough was
+actually run — walk from the gatehouse to the undercroft, fight the boss,
+save, and reload — not that `cmake --build` exited 0. For anything
+touching `oauth/`/`sync/wolfram_record_store.*`, "verified" means run
+against real infrastructure where possible (discovery, resolution, and
 the firehose connect/stop lifecycle all can be, without a login) — see
 "Current reality and risks" for exactly what has and hasn't been exercised
 that way.
