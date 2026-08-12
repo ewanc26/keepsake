@@ -11,6 +11,7 @@
 
 #if defined(KEEPSAKE_WITH_WOLFRAM)
 #include "oauth/oauth_flow.hpp"
+#include "oauth/profile_lookup.hpp"
 #include "sync/firehose_watch.hpp"
 #include "sync/wolfram_record_store.hpp"
 #endif
@@ -90,12 +91,14 @@ int main(int argc, char **argv) {
     }
 
     std::unique_ptr<keepsake::sync::RecordStore> store;
+    std::string signedInDid;
 #if defined(KEEPSAKE_WITH_WOLFRAM)
     {
         std::string error;
         auto wolframStore = keepsake::sync::WolframRecordStore::open(error);
         if (wolframStore) {
             std::cout << "Signed in as " << wolframStore->did() << "\n";
+            signedInDid = wolframStore->did();
             store = std::move(wolframStore);
         }
     }
@@ -110,7 +113,8 @@ int main(int argc, char **argv) {
     }
 
     keepsake::save::SaveData data;
-    if (!store->load(data)) {
+    bool isNewCharacter = !store->load(data);
+    if (isNewCharacter) {
         data.character = keepsake::entity::Character{};
         data.character.worldSeed = idHash;
         data.character.createdAt = keepsake::util::isoNow();
@@ -119,6 +123,29 @@ int main(int argc, char **argv) {
 
     keepsake::world::World world = keepsake::world::World::createDefault();
     world.reconcile(data.progress);
+
+#if defined(KEEPSAKE_WITH_WOLFRAM)
+    // Identity-seeded flavor (design roadmap §3): a brand-new DID sees a
+    // freshly-forced gate; an established one sees the same worn, rusted
+    // gate the local-only game always described. Best-effort — a lookup
+    // failure (offline, actor not found) just keeps the default text.
+    if (isNewCharacter && !signedInDid.empty()) {
+        std::string createdAtIso;
+        if (keepsake::oauth::fetchAccountCreatedAt(signedInDid, createdAtIso) &&
+            createdAtIso.size() >= 4) {
+            std::string accountYear = createdAtIso.substr(0, 4);
+            std::string currentYear = keepsake::util::isoNow().substr(0, 4);
+            if (accountYear == currentYear) {
+                if (auto *gatehouse = world.find("gatehouse")) {
+                    gatehouse->description =
+                        "The gate hangs open on one hinge — freshly forced, "
+                        "by the look of the splintered wood. Whatever came "
+                        "through here didn't wait around.";
+                }
+            }
+        }
+    }
+#endif
 
     keepsake::ui::run(world, data.character, data.progress, *store, std::cin,
                       std::cout);

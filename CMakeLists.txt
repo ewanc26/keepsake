@@ -114,6 +114,7 @@ if(KEEPSAKE_WITH_WOLFRAM)
 
     list(APPEND KEEPSAKE_SOURCES
         src/oauth/url_encode.cpp
+        src/oauth/profile_lookup.cpp
         src/oauth/loopback_listener.cpp
         src/oauth/oauth_flow.cpp
         src/sync/wolfram_record_store.cpp
