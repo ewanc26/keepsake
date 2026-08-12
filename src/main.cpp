@@ -188,8 +188,35 @@ int main(int argc, char **argv) {
     }
 #endif
 
+#if defined(KEEPSAKE_WITH_WOLFRAM)
+    // Live world events (design roadmap §4): only for signed-in players —
+    // signed-out play stays fully offline with zero network activity, and
+    // this is the same "shared world" opt-in signing in already implies
+    // (see the npcs/identity-flavor blocks above). EventBridge's
+    // background thread only ever feeds ui::run text to print; see
+    // ui/terminal.hpp's RemoteEventPoll comment for why that keeps this
+    // safe without touching World/Progress from another thread.
+    keepsake::sync::EventBridge eventBridge;
+    keepsake::ui::RemoteEventPoll pollRemoteEvents;
+    if (!signedInDid.empty()) {
+        eventBridge.start();
+        pollRemoteEvents = [&eventBridge]() {
+            std::vector<std::string> lines;
+            for (auto &remote : eventBridge.drain()) {
+                lines.push_back(keepsake::sync::formatRemoteEvent(remote));
+            }
+            return lines;
+        };
+    }
+
+    keepsake::ui::run(world, data.character, data.progress, *store, std::cin,
+                      std::cout, pollRemoteEvents);
+
+    eventBridge.stop();
+#else
     keepsake::ui::run(world, data.character, data.progress, *store, std::cin,
                       std::cout);
+#endif
 
     return 0;
 }

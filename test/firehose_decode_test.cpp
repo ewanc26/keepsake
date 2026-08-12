@@ -49,6 +49,8 @@ const wf_record_schema kEventSchema{WF_RECORD_OBJECT, kEventProps, 4, nullptr};
 int main() {
     using keepsake::sync::DecodedEvent;
     using keepsake::sync::decodeEventRecord;
+    using keepsake::sync::formatRemoteEvent;
+    using keepsake::sync::RemoteEvent;
 
     // 1) Encode a real click.croft.rpg.event record to DAG-CBOR the same
     //    way a genuine WolframRecordStore::recordEvent() call would (via
@@ -111,6 +113,28 @@ int main() {
         const unsigned char garbage[] = {0xff, 0x00, 0xff, 0x00};
         DecodedEvent decoded;
         CHECK(decodeEventRecord(garbage, sizeof(garbage), decoded) == false);
+    }
+
+    // 6) formatRemoteEvent — the line shape EventBridge's drained events
+    //    print as, and `keepsake events` has always printed.
+    {
+        RemoteEvent remote{
+            "did:plc:example",
+            {"enemyDefeated", "undercroft", "The Hollow Knight has fallen."}};
+        CHECK(formatRemoteEvent(remote) ==
+              "[did:plc:example] enemyDefeated at undercroft: The Hollow "
+              "Knight has fallen.");
+
+        // Optional detail omitted entirely, not printed as ": ".
+        RemoteEvent noDetail{"did:plc:example",
+                             {"enemyDefeated", "undercroft", ""}};
+        CHECK(formatRemoteEvent(noDetail) ==
+              "[did:plc:example] enemyDefeated at undercroft");
+
+        // Missing kind/locationId fall back rather than printing blank.
+        RemoteEvent blank{"did:plc:example", {"", "", ""}};
+        CHECK(formatRemoteEvent(blank) ==
+              "[did:plc:example] (unknown event) at ?");
     }
 
     wf_car_free(&parsedCar);
