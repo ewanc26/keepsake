@@ -37,6 +37,29 @@ set(KEEPSAKE_SOURCES
     src/ui/terminal.cpp
 )
 
+# Unit tests for the pure-logic modules — quest/, combat/, save/, dialogue/,
+# identity/ never include anything from sync/ (see AGENTS.md's module
+# boundary rules), so these need no wolfram dependency and no network
+# access, and are always registered regardless of KEEPSAKE_WITH_WOLFRAM.
+enable_testing()
+
+function(keepsake_add_test name)
+    add_executable(${name} test/${name}.cpp ${ARGN})
+    target_include_directories(${name} PRIVATE src)
+    add_test(NAME ${name} COMMAND ${name})
+endfunction()
+
+keepsake_add_test(quest_test src/quest/quest.cpp)
+keepsake_add_test(combat_test src/combat/combat.cpp src/entity/character.cpp)
+keepsake_add_test(json_test src/save/json.cpp)
+keepsake_add_test(save_test
+    src/save/json.cpp src/save/save.cpp src/util/xdg.cpp
+    src/entity/character.cpp src/quest/quest.cpp)
+keepsake_add_test(dialogue_test
+    src/dialogue/dialogue.cpp src/entity/character.cpp src/quest/quest.cpp)
+keepsake_add_test(identity_test
+    src/identity/identity.cpp src/save/json.cpp src/util/xdg.cpp)
+
 if(KEEPSAKE_WITH_WOLFRAM)
     # Build only what the OAuth/sync layer needs — no server, no bundled
     # tests/examples, and skip the optional SQLite-backed session store
@@ -127,7 +150,6 @@ if(KEEPSAKE_WITH_WOLFRAM)
     # round-trip test instead: encode a real record, wrap it in a real
     # CAR block, decode it back with the exact function the live path
     # calls. No network access needed.
-    enable_testing()
     add_executable(firehose_decode_test
         test/firehose_decode_test.cpp
         src/sync/firehose_watch.cpp
