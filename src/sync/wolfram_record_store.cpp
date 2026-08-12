@@ -9,6 +9,8 @@ namespace {
 
 constexpr const char *kCharacterCollection = "click.croft.rpg.character";
 constexpr const char *kProgressCollection = "click.croft.rpg.progress";
+constexpr const char *kAchievementCollection = "click.croft.rpg.achievement";
+constexpr const char *kEventCollection = "click.croft.rpg.event";
 
 save::Json characterToRecord(const entity::Character &c) {
     save::Json record = save::Json::object();
@@ -106,6 +108,24 @@ bool putRecord(wf_auth_client *auth, const std::string &did,
     return ok;
 }
 
+// For append-only collections (achievement, event): omits rkey so the PDS
+// assigns a fresh TID, matching those collections' "key": "tid" lexicon.
+// Best-effort — callers treat failure as "the broadcast didn't happen",
+// never as a reason to fail the action that triggered it.
+void createRecord(wf_auth_client *auth, const std::string &did,
+                  const std::string &collection, save::Json recordValue) {
+    save::Json body = save::Json::object();
+    body.set("repo", did);
+    body.set("collection", collection);
+    body.set("record", std::move(recordValue));
+    std::string bodyJson = body.dump();
+
+    wf_response resp{};
+    wf_auth_client_procedure(auth, "com.atproto.repo.createRecord",
+                             bodyJson.c_str(), &resp);
+    wf_response_free(&resp);
+}
+
 // Returns false (and leaves `outValue` untouched) if the record doesn't
 // exist yet or the fetch otherwise fails — the ordinary state for a
 // brand-new DID that has never saved before.
@@ -183,6 +203,30 @@ bool WolframRecordStore::save(const save::SaveData &data) {
         putRecord(session_.client(), session_.did(), kProgressCollection,
                   progressToRecord(data.progress));
     return characterOk && progressOk;
+}
+
+void WolframRecordStore::recordAchievement(const std::string &id,
+                                           const std::string &name) {
+    if (!session_.valid()) return;
+    save::Json record = save::Json::object();
+    record.set("id", id);
+    record.set("name", name);
+    record.set("createdAt", util::isoNow());
+    createRecord(session_.client(), session_.did(), kAchievementCollection,
+                 std::move(record));
+}
+
+void WolframRecordStore::recordEvent(const std::string &kind,
+                                     const std::string &locationId,
+                                     const std::string &detail) {
+    if (!session_.valid()) return;
+    save::Json record = save::Json::object();
+    record.set("kind", kind);
+    record.set("locationId", locationId);
+    if (!detail.empty()) record.set("detail", detail);
+    record.set("createdAt", util::isoNow());
+    createRecord(session_.client(), session_.did(), kEventCollection,
+                 std::move(record));
 }
 
 } // namespace keepsake::sync

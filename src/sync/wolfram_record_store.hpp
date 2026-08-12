@@ -26,6 +26,10 @@ class WolframRecordStore : public RecordStore {
 
     bool load(save::SaveData &out) override;
     bool save(const save::SaveData &data) override;
+    void recordAchievement(const std::string &id,
+                           const std::string &name) override;
+    void recordEvent(const std::string &kind, const std::string &locationId,
+                     const std::string &detail) override;
 
     const std::string &did() const {
         return session_.did();

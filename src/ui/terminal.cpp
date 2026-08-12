@@ -218,8 +218,20 @@ void run(world::World &world, entity::Character &player,
             }
             combat::Result result = combat::run(player, *enemy, out);
             if (result == combat::Result::Victory) {
+                bool wasComplete =
+                    quest::hasFlag(progress, "quest.keep_cleared.complete");
                 quest::onEnemyDefeated(progress, enemy->id);
                 current->enemyId.reset();
+                // Broadcasts nothing when signed out — RecordStore's
+                // default implementation of these is a no-op. Fires once,
+                // on the not-complete -> complete transition, not on
+                // every subsequent load of an already-completed save.
+                if (!wasComplete &&
+                    quest::hasFlag(progress, "quest.keep_cleared.complete")) {
+                    store.recordAchievement("keep_cleared", "The Weight Below");
+                    store.recordEvent("enemyDefeated", current->id,
+                                      enemy->name + " has fallen.");
+                }
             } else {
                 out << "\nYour last save is untouched — reload to try "
                        "again.\n";
