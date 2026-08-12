@@ -29,4 +29,8 @@ std::string oauthSessionFilePath() {
     return keepsakeDataDir() + "/oauth-session.json";
 }
 
+std::string socialNpcsOptInFilePath() {
+    return keepsakeDataDir() + "/social-npcs-enabled";
+}
+
 } // namespace keepsake::util

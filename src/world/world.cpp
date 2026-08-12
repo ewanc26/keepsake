@@ -16,6 +16,7 @@ World World::createDefault() {
         {},
         std::nullopt,
         std::nullopt,
+        {},
     };
 
     w.locations_["courtyard"] = Location{
@@ -27,6 +28,7 @@ World World::createDefault() {
         {},
         std::string("watcher"),
         std::nullopt,
+        {},
     };
 
     w.locations_["armory"] = Location{
@@ -38,6 +40,7 @@ World World::createDefault() {
         {"iron_sword"},
         std::nullopt,
         std::nullopt,
+        {},
     };
 
     w.locations_["chapel"] = Location{
@@ -49,6 +52,7 @@ World World::createDefault() {
         {},
         std::nullopt,
         std::nullopt,
+        {},
     };
 
     w.locations_["undercroft"] = Location{
@@ -60,6 +64,7 @@ World World::createDefault() {
         {},
         std::nullopt,
         std::string("hollow_knight"),
+        {},
     };
 
     return w;

@@ -15,6 +15,11 @@ std::string keepsakeDataDir();
 // identity.cpp.
 std::string oauthSessionFilePath();
 
+// <data dir>/social-npcs-enabled. Presence (not content) is the opt-in
+// flag for turning followed accounts into flavor mentions in-world — see
+// `keepsake npcs on`/`off` and world::Location::flavorNpcNames.
+std::string socialNpcsOptInFilePath();
+
 } // namespace keepsake::util
 
 #endif

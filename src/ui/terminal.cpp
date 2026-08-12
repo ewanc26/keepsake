@@ -79,6 +79,14 @@ void printLocation(const world::Location &loc, std::ostream &out) {
             out << enemy->name << " blocks the way.\n";
         }
     }
+    if (!loc.flavorNpcNames.empty()) {
+        out << "You notice familiar faces here: ";
+        for (size_t i = 0; i < loc.flavorNpcNames.size(); ++i) {
+            out << loc.flavorNpcNames[i];
+            if (i + 1 < loc.flavorNpcNames.size()) out << ", ";
+        }
+        out << ".\n";
+    }
     if (!loc.exits.empty()) {
         out << "Exits: ";
         for (size_t i = 0; i < loc.exits.size(); ++i) {

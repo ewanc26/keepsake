@@ -1,12 +1,15 @@
 #include <cstdio>
+#include <fstream>
 #include <iostream>
 #include <memory>
+#include <vector>
 
 #include "identity/identity.hpp"
 #include "save/save.hpp"
 #include "sync/local_record_store.hpp"
 #include "ui/terminal.hpp"
 #include "util/time.hpp"
+#include "util/xdg.hpp"
 #include "world/world.hpp"
 
 #if defined(KEEPSAKE_WITH_WOLFRAM)
@@ -30,6 +33,8 @@ void printUsage() {
            "  whoami                  Show the signed-in DID, if any\n"
            "  events                  Watch the firehose for other "
            "players' world events\n"
+           "  npcs on|off             Turn accounts you follow into "
+           "in-world mentions\n"
 #endif
            "  help     Show this message\n";
 }
@@ -77,6 +82,23 @@ int main(int argc, char **argv) {
     }
     if (command == "events") {
         keepsake::sync::watchEvents(std::cout);
+        return 0;
+    }
+    if (command == "npcs") {
+        std::string path = keepsake::util::socialNpcsOptInFilePath();
+        if (argc > 2 && std::string(argv[2]) == "on") {
+            std::ofstream(path) << "1\n";
+            std::cout
+                << "On. Signed-in play will show accounts you follow as "
+                   "in-world mentions (public handle and display name only "
+                   "— nothing private, no DMs).\n";
+        } else if (argc > 2 && std::string(argv[2]) == "off") {
+            std::remove(path.c_str());
+            std::cout << "Off.\n";
+        } else {
+            std::cerr << "Usage: keepsake npcs on|off\n";
+            return 1;
+        }
         return 0;
     }
 #endif
@@ -141,6 +163,25 @@ int main(int argc, char **argv) {
                         "The gate hangs open on one hinge — freshly forced, "
                         "by the look of the splintered wood. Whatever came "
                         "through here didn't wait around.";
+                }
+            }
+        }
+    }
+
+    // Opt-in social-graph NPCs (design roadmap §4): mentions only, not
+    // interactive — see world::Location::flavorNpcNames and AGENTS.md.
+    // Re-checked every run (not just on character creation), so toggling
+    // `keepsake npcs on/off` takes effect on the next play session.
+    if (!signedInDid.empty()) {
+        std::ifstream optIn(keepsake::util::socialNpcsOptInFilePath());
+        if (optIn) {
+            std::vector<keepsake::oauth::FollowedActor> follows;
+            if (keepsake::oauth::fetchFollows(signedInDid, 5, follows) &&
+                !follows.empty()) {
+                if (auto *courtyard = world.find("courtyard")) {
+                    for (const auto &actor : follows) {
+                        courtyard->flavorNpcNames.push_back("@" + actor.handle);
+                    }
                 }
             }
         }
