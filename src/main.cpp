@@ -11,6 +11,7 @@
 
 #if defined(KEEPSAKE_WITH_WOLFRAM)
 #include "oauth/oauth_flow.hpp"
+#include "sync/firehose_watch.hpp"
 #include "sync/wolfram_record_store.hpp"
 #endif
 
@@ -26,6 +27,8 @@ void printUsage() {
            "  login <handle-or-did>   Sign in with your AT Protocol handle\n"
            "  logout                  Forget the saved session\n"
            "  whoami                  Show the signed-in DID, if any\n"
+           "  events                  Watch the firehose for other "
+           "players' world events\n"
 #endif
            "  help     Show this message\n";
 }
@@ -69,6 +72,10 @@ int main(int argc, char **argv) {
         } else {
             std::cout << "Not signed in (" << error << ")\n";
         }
+        return 0;
+    }
+    if (command == "events") {
+        keepsake::sync::watchEvents(std::cout);
         return 0;
     }
 #endif

@@ -117,6 +117,7 @@ if(KEEPSAKE_WITH_WOLFRAM)
         src/oauth/loopback_listener.cpp
         src/oauth/oauth_flow.cpp
         src/sync/wolfram_record_store.cpp
+        src/sync/firehose_watch.cpp
     )
 endif()
 
