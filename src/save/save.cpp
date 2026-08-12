@@ -18,6 +18,7 @@ Json toJson(const SaveData &data) {
     character.set("attack", data.character.attack);
     character.set("defense", data.character.defense);
     character.set("worldSeed", data.character.worldSeed);
+    character.set("createdAt", data.character.createdAt);
 
     Json inventory = Json::array();
     for (const auto &stack : data.character.inventory) {
@@ -68,6 +69,9 @@ bool fromJson(const Json &json, SaveData &out) {
     character.defense = v->asInt();
     if ((v = characterJson->find("worldSeed")) != nullptr) {
         character.worldSeed = v->asString();
+    }
+    if ((v = characterJson->find("createdAt")) != nullptr) {
+        character.createdAt = v->asString();
     }
     if ((v = characterJson->find("inventory")) != nullptr && v->isArray()) {
         for (const auto &item : v->items()) {

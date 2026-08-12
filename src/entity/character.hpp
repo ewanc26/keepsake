@@ -40,6 +40,11 @@ struct Character {
     // src/identity/identity.hpp. Phase 3 will use it to bias world
     // generation by account signal instead of just anchoring the save.
     std::string worldSeed;
+    // Set once at character creation (see util::isoNow()); preserved
+    // across saves so a click.croft.rpg.character record's createdAt
+    // reflects when the character was actually created, not when it was
+    // last synced. Empty for a character that predates this field.
+    std::string createdAt;
     std::vector<ItemStack> inventory;
 
     void addItem(const std::string &itemId, int count = 1);
