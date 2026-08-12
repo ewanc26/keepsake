@@ -1,0 +1,28 @@
+{
+  "lexicon": 1,
+  "id": "click.croft.rpg.event",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A world-altering action a Keepsake player broadcasts. Other players' clients subscribe to writes into this collection over com.atproto.sync.subscribeRepos and fold them into their own world state — see the design roadmap's shared-world phase in README.md. The acting player's identity comes from the commit's repo DID, not a field in the record.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["kind", "locationId", "createdAt"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "e.g. \"enemyDefeated\", \"regionCleared\"."
+          },
+          "locationId": { "type": "string" },
+          "detail": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Optional flavor text other clients may surface as a rumor."
+          },
+          "createdAt": { "type": "string", "format": "datetime" }
+        }
+      }
+    }
+  }
+}

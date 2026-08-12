@@ -1,0 +1,28 @@
+{
+  "lexicon": 1,
+  "id": "click.croft.rpg.progress",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A Keepsake player's current location and quest flags, one live record per player.",
+      "key": "literal:self",
+      "record": {
+        "type": "object",
+        "required": ["location", "updatedAt"],
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "Location id within the current world content."
+          },
+          "flags": {
+            "type": "array",
+            "maxLength": 256,
+            "items": { "type": "string", "maxLength": 128 },
+            "description": "Quest and world-state flags the player has set."
+          },
+          "updatedAt": { "type": "string", "format": "datetime" }
+        }
+      }
+    }
+  }
+}

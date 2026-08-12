@@ -1,0 +1,23 @@
+{
+  "lexicon": 1,
+  "id": "click.croft.rpg.achievement",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A verifiable, portable milestone — readable directly from the player's own repo, at the DID it lives under, by anyone. No Keepsake-run service is required to trust it.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["id", "name", "createdAt"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable achievement id, e.g. \"keep_cleared\"."
+          },
+          "name": { "type": "string", "maxLength": 64 },
+          "createdAt": { "type": "string", "format": "datetime" }
+        }
+      }
+    }
+  }
+}

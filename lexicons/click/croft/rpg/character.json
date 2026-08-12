@@ -1,0 +1,42 @@
+{
+  "lexicon": 1,
+  "id": "click.croft.rpg.character",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "A Keepsake character sheet, one live record per player.",
+      "key": "literal:self",
+      "record": {
+        "type": "object",
+        "required": ["className", "level", "hp", "maxHp", "createdAt"],
+        "properties": {
+          "className": { "type": "string", "maxLength": 32 },
+          "level": { "type": "integer", "minimum": 1, "maximum": 99 },
+          "xp": { "type": "integer", "minimum": 0, "default": 0 },
+          "hp": { "type": "integer", "minimum": 0 },
+          "maxHp": { "type": "integer", "minimum": 1 },
+          "attack": { "type": "integer", "minimum": 0 },
+          "defense": { "type": "integer", "minimum": 0 },
+          "worldSeed": {
+            "type": "string",
+            "description": "A digest of the owning DID, used to bias world generation deterministically. Locally this is identity::hash() over a generated stand-in; once sign-in exists it is derived the same way from the real DID, so a character's seed never changes just because the player logged in."
+          },
+          "inventory": {
+            "type": "array",
+            "maxLength": 64,
+            "items": { "type": "ref", "ref": "#itemStack" }
+          },
+          "createdAt": { "type": "string", "format": "datetime" }
+        }
+      }
+    },
+    "itemStack": {
+      "type": "object",
+      "required": ["itemId", "count"],
+      "properties": {
+        "itemId": { "type": "string" },
+        "count": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}
