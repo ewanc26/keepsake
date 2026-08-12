@@ -6,6 +6,7 @@ CMakeCache.txt
 cmake_install.cmake
 Makefile
 compile_commands.json
+Testing/
 
 # Local save data (game writes real saves outside the repo; this only
 # catches a save file dropped in-tree during ad hoc local testing)
