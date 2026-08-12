@@ -111,7 +111,8 @@ src/
              identity-seeded flavor and social-graph NPCs
   sync/      RecordStore interface; LocalRecordStore (local file) and
              WolframRecordStore (your PDS) both implement it; firehose_watch
-             backs the `events` command
+             backs the `events` command and EventBridge, the background
+             subscription signed-in play polls for "(Elsewhere) ..." text
   ui/        Terminal command loop
   main.cpp   Subcommands + backend selection
 lexicons/
@@ -137,16 +138,18 @@ lexicons/
    (`fetchAccountCreatedAt`, verified live against a real account) are all
    in. Deeper world-*generation* variance from account signal, beyond this
    one flavor swap, is still just the design's idea.
-4. **Shared world** — partially done. Quest completion broadcasts a
+4. **Shared world** — mostly done. Quest completion broadcasts a
    `click.croft.rpg.event` record. `keepsake events` watches the firehose
    for them (connect/retry/stop lifecycle confirmed against the real
    firehose) — but the record-decode path hasn't been verified against live
    data (see `AGENTS.md`). Opt-in social-graph NPCs from your follows are
    in — `keepsake npcs on`, verified live with a real account's real
    follows appearing in the Courtyard — but purely as flavor mentions, not
-   interactive NPCs. Folding *remote* events into your own running game
-   isn't wired up yet: that needs real thread-safety design between the
-   firehose's callback and the interactive game loop, which doesn't exist.
+   interactive NPCs. *Remote* events are now folded into your own running
+   game, signed in: a background subscription (`sync::EventBridge`) feeds
+   `ui::run` lines to print between turns, deliberately display-only —
+   nothing off the firehose ever touches `World`/`Progress`, so this
+   doesn't need (and doesn't have) full thread-safe game-state sharing.
 5. **Stretch** — cross-compiled offline-mode builds for the exotic targets
    wolfram already supports (Wii, Wii U, 3DS). Partially checked: with
    `KEEPSAKE_WITH_WOLFRAM=OFF` (the local-only game has no POSIX-specific
