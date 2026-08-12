@@ -36,7 +36,10 @@ src/
              synced DID); see README.md "Identity"
   util/      xdg.hpp/.cpp — $XDG_DATA_HOME/keepsake resolution, shared by
              identity/ and save/
-  world/     Location graph — rooms, exits, items, NPC/enemy placement
+  world/     Location graph — rooms, exits, items, NPC/enemy placement;
+             Location::flavorNpcNames for opt-in social-graph mentions
+             (display-only, not interactive — populated fresh in main.cpp
+             each run, never persisted)
   entity/    Character and item definitions (structs, not systems)
   combat/    Turn-based combat resolution
   dialogue/  Branching NPC dialogue trees
@@ -53,7 +56,10 @@ src/
   oauth/     url_encode.*, loopback_listener.* (single-request local HTTP
              server for the OAuth redirect), oauth_flow.* (AuthSession,
              signIn(), restoreSession() — see its header for the full
-             flow and the wolfram bug it works around)
+             flow and the wolfram bug it works around), profile_lookup.*
+             (public, unauthenticated app.bsky.actor.getProfile /
+             .graph.getFollows — no session needed, used by both
+             identity-seeded flavor and social-graph NPCs)
   ui/        Terminal command loop (terminal.hpp/.cpp)
   main.cpp   Subcommand dispatch (login/logout/whoami/events) + backend
              selection for the default play mode

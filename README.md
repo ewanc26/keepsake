@@ -63,6 +63,8 @@ Pass `-DKEEPSAKE_WITH_WOLFRAM=OFF` for a dependency-free, local-only build.
 ./build/keepsake whoami                  # show the signed-in DID, if any
 ./build/keepsake logout                  # forget the saved session
 ./build/keepsake events                  # watch the firehose for other players' world events
+./build/keepsake npcs on                 # show accounts you follow as in-world mentions
+./build/keepsake npcs off
 ```
 
 `login` prints an authorization URL, opens your browser at it, and waits for
@@ -104,7 +106,9 @@ src/
   save/      Minimal JSON value type + local save (de)serialization
   identity/  identity::key()/hash() — see "Identity" above
   oauth/     OAuth login flow: handle/DID/PDS resolution, the loopback
-             redirect, PKCE/DPoP via wolfram, session persistence
+             redirect, PKCE/DPoP via wolfram, session persistence;
+             profile_lookup.* for the public, unauthenticated reads behind
+             identity-seeded flavor and social-graph NPCs
   sync/      RecordStore interface; LocalRecordStore (local file) and
              WolframRecordStore (your PDS) both implement it; firehose_watch
              backs the `events` command
@@ -127,18 +131,22 @@ lexicons/
    PDS reads/writes are implemented and reasoned through, but exercising
    them end to end needs an actual `keepsake login` run by a human — an
    agent can't click "Authorize" on someone's behalf.
-3. **Dynamic tuning** — the DID-seeded `worldSeed` and verifiable
-   `click.croft.rpg.achievement` records are done. Using account signal
-   (age, activity) to bias world *generation*, not just seed it, is still
-   just the design's idea, not implemented.
+3. **Dynamic tuning** — done, modestly. The DID-seeded `worldSeed`,
+   verifiable `click.croft.rpg.achievement` records, and a brand-new
+   account seeing a freshly-forced gate instead of the default worn one
+   (`fetchAccountCreatedAt`, verified live against a real account) are all
+   in. Deeper world-*generation* variance from account signal, beyond this
+   one flavor swap, is still just the design's idea.
 4. **Shared world** — partially done. Quest completion broadcasts a
    `click.croft.rpg.event` record. `keepsake events` watches the firehose
    for them (connect/retry/stop lifecycle confirmed against the real
    firehose) — but the record-decode path hasn't been verified against live
-   data (see `AGENTS.md`), and folding remote events into your *own* running
-   game isn't wired up yet: that needs real thread-safety design between the
+   data (see `AGENTS.md`). Opt-in social-graph NPCs from your follows are
+   in — `keepsake npcs on`, verified live with a real account's real
+   follows appearing in the Courtyard — but purely as flavor mentions, not
+   interactive NPCs. Folding *remote* events into your own running game
+   isn't wired up yet: that needs real thread-safety design between the
    firehose's callback and the interactive game loop, which doesn't exist.
-   Opt-in social-graph NPCs from your follows are still just designed.
 5. **Stretch** — cross-compiled offline-mode builds for the exotic targets
    wolfram already supports (Wii, Wii U, 3DS). Partially checked: with
    `KEEPSAKE_WITH_WOLFRAM=OFF` (the local-only game has no POSIX-specific
