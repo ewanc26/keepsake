@@ -150,17 +150,6 @@ lexicons/
    `ui::run` lines to print between turns, deliberately display-only —
    nothing off the firehose ever touches `World`/`Progress`, so this
    doesn't need (and doesn't have) full thread-safe game-state sharing.
-5. **Stretch** — cross-compiled offline-mode builds for the exotic targets
-   wolfram already supports (Wii, Wii U, 3DS). Partially checked: with
-   `KEEPSAKE_WITH_WOLFRAM=OFF` (the local-only game has no POSIX-specific
-   code, unlike `oauth/`, which needs `fork`/sockets and isn't a console
-   target regardless), every source file compiles cleanly against
-   devkitPPC's PowerPC toolchain — confirmed by actually cross-compiling
-   it, not just configuring. It doesn't *link* into a bootable `.dol` yet:
-   that needs devkitPPC-specific executable packaging (a Wii linker
-   script/specs file, `-logc`, an `elf2dol` step) that wolfram itself never
-   had to add, since it's a library there, not a linked executable. 3DS
-   wasn't checked (no devkitARM toolchain available where this was tested).
 
 See `AGENTS.md`'s "Current reality and risks" for the unabridged, honest
 version of exactly what's tested versus reasoned-through versus aspirational.
