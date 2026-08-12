@@ -25,4 +25,8 @@ std::string keepsakeDataDir() {
     return dir.string();
 }
 
+std::string oauthSessionFilePath() {
+    return keepsakeDataDir() + "/oauth-session.json";
+}
+
 } // namespace keepsake::util

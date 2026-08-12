@@ -7,6 +7,7 @@
 #include <random>
 #include <sstream>
 
+#include "save/json.hpp"
 #include "util/xdg.hpp"
 
 namespace keepsake::identity {
@@ -15,6 +16,28 @@ namespace {
 
 std::string identityFilePath() {
     return util::keepsakeDataDir() + "/identity";
+}
+
+// Reads the DID straight out of a persisted OAuth session file, if one
+// exists — tokenSet.sub in the shape wf_oauth_session_state_serialize
+// writes. Deliberately does this with keepsake's own JSON parser rather
+// than depending on wolfram: identity/ is core (always compiled, even
+// with KEEPSAKE_WITH_WOLFRAM=OFF), and this is a pure local file read, no
+// network involved, so it doesn't need wolfram's OAuth machinery at all —
+// see util::oauthSessionFilePath()'s doc comment.
+std::string signedInDid() {
+    std::ifstream in{util::oauthSessionFilePath()};
+    if (!in) return "";
+    std::ostringstream buf;
+    buf << in.rdbuf();
+
+    save::Json parsed;
+    if (!save::Json::parse(buf.str(), parsed) || !parsed.isObject()) return "";
+    const save::Json *tokenSet = parsed.find("tokenSet");
+    if (tokenSet == nullptr || !tokenSet->isObject()) return "";
+    const save::Json *sub = tokenSet->find("sub");
+    if (sub == nullptr) return "";
+    return sub->asString();
 }
 
 std::string generateLocalAnchor() {
@@ -49,6 +72,8 @@ uint64_t fnv1a(const std::string &s) {
 } // namespace
 
 std::string key() {
+    if (std::string did = signedInDid(); !did.empty()) return did;
+
     const std::string path = identityFilePath();
 
     if (std::ifstream in{path}; in) {
