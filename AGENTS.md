@@ -50,9 +50,11 @@ src/
   sync/      RecordStore interface (record_store.hpp); LocalRecordStore
              (local file); WolframRecordStore (click.croft.rpg.character/
              .progress via generic repo CRUD, plus recordAchievement()/
-             recordEvent() broadcasts); firehose_watch.* (standalone
-             `keepsake events` firehose reader — not wired into the live
-             game loop, see "Current reality" below)
+             recordEvent() broadcasts); firehose_watch.* (the standalone
+             `keepsake events` firehose reader, plus EventBridge — a
+             background-thread subscription ui::run polls each turn for
+             display-only "(Elsewhere) ..." text; see "Current reality"
+             below)
   oauth/     url_encode.*, loopback_listener.* (single-request local HTTP
              server for the OAuth redirect), oauth_flow.* (AuthSession,
              signIn(), restoreSession() — see its header for the full
@@ -193,15 +195,32 @@ that way.
   practice: no other `click.croft.rpg.event` writers exist. Before trusting
   this path, test it somewhere WebSocket egress is unrestricted, ideally
   against a real event written by a signed-in session.
-- **The firehose reader is deliberately not wired into the live game
-  loop.** `keepsake events` is a separate, standalone command
-  (`main.cpp`), not a background thread inside `ui::run`'s interactive
-  loop. Folding remote events into `World`/`Progress` while the player is
-  mid-game needs real synchronization design (a mutex or message channel
-  between the firehose callback's thread and the main loop) that doesn't
-  exist yet — do not bolt a background subscription onto `ui::run` without
-  designing that first; a data race on `World` is worse than the feature
-  not existing.
+- **The firehose reader is now wired into the live game loop, but only as
+  a read-only, display-only side channel — never as a feed into
+  `World`/`Progress`.** `sync::EventBridge` (`sync/firehose_watch.*`) owns
+  a background subscription thread and a mutex-protected queue;
+  `ui::run` takes an optional `ui::RemoteEventPoll` (a
+  `std::function<std::vector<std::string>()>`, defined in
+  `ui/terminal.hpp` with no `sync::EventBridge` type in its signature, so
+  that header stays compiled unconditionally regardless of
+  `KEEPSAKE_WITH_WOLFRAM`) and calls it once per turn, printing whatever
+  lines come back as `(Elsewhere) ...` text. `main.cpp` only constructs
+  and starts an `EventBridge` when signed in — signed-out play still has
+  zero network activity. This sidesteps the synchronization problem that
+  used to block this (a data race on `World` from a second thread) by
+  design: the background thread's writes go into `EventBridge`'s own
+  queue, and the only thing `ui::run` ever does with a drained event is
+  print it — nothing coming off the firehose can change what's true about
+  the game, only what gets displayed alongside it. `EventBridge::stop()`
+  has to reach into a blocking C call (`wf_subscribe_start`) from a
+  different thread than the one running it; see the comments on
+  `EventBridge::start()`/`stop()` in `firehose_watch.cpp` for exactly how
+  that handle handoff works and its (deliberately accepted, macOS/Linux-
+  only) reliance on `std::atomic<T*>` sharing `T*`'s object
+  representation. The underlying record-decode path's live-data
+  verification gap described above still applies unchanged — this only
+  changes where decoded events get delivered, not how confident to be in
+  the decoding itself.
 
 ## Commits and pull requests
 

@@ -106,7 +106,7 @@ bool doSave(entity::Character &player, quest::Progress &progress,
 
 void run(world::World &world, entity::Character &player,
          quest::Progress &progress, sync::RecordStore &store, std::istream &in,
-         std::ostream &out) {
+         std::ostream &out, RemoteEventPoll pollRemoteEvents) {
     world::Location *current = world.find(progress.location);
     if (current == nullptr) {
         // A corrupt or hand-edited save pointed at a location that no
@@ -120,6 +120,11 @@ void run(world::World &world, entity::Character &player,
 
     std::string line;
     while (true) {
+        if (pollRemoteEvents) {
+            for (const auto &eventLine : pollRemoteEvents()) {
+                out << "\n(Elsewhere) " << eventLine << "\n";
+            }
+        }
         out << "\n> ";
         if (!std::getline(in, line)) {
             out << "\n";
