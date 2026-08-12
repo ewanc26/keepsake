@@ -22,7 +22,7 @@ int main() {
     world.reconcile(data.progress);
 
     keepsake::ui::run(world, data.character, data.progress, store, std::cin,
-                       std::cout);
+                      std::cout);
 
     return 0;
 }

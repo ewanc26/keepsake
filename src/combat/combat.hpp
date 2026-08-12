@@ -26,8 +26,7 @@ enum class Result { Victory, Defeat };
 
 // Runs a full turn-based fight to conclusion, narrating each exchange to
 // `out`. Mutates `player` (HP loss, XP/loot on victory) in place.
-Result run(entity::Character &player, const EnemyDef &enemy,
-           std::ostream &out);
+Result run(entity::Character &player, const EnemyDef &enemy, std::ostream &out);
 
 } // namespace keepsake::combat
 

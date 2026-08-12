@@ -41,8 +41,7 @@ void appendEscaped(std::string &out, const std::string &s) {
 }
 
 std::string formatNumber(double n) {
-    if (n == static_cast<long long>(n) &&
-        std::abs(n) < 1e15) {
+    if (n == static_cast<long long>(n) && std::abs(n) < 1e15) {
         return std::to_string(static_cast<long long>(n));
     }
     char buf[64];

@@ -73,7 +73,7 @@ void World::reconcile(const quest::Progress &progress) {
         Location &loc = entry.second;
         auto isTaken = [&](const std::string &itemId) {
             return quest::hasFlag(progress,
-                                   "item.taken." + loc.id + "." + itemId);
+                                  "item.taken." + loc.id + "." + itemId);
         };
         loc.itemIds.erase(
             std::remove_if(loc.itemIds.begin(), loc.itemIds.end(), isTaken),

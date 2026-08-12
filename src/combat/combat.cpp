@@ -30,7 +30,7 @@ int rollDamage(int attack, int defense) {
 const EnemyDef *findEnemyDef(const std::string &id) {
     const auto &enemies = enemyRegistry();
     auto it = std::find_if(enemies.begin(), enemies.end(),
-                            [&](const EnemyDef &e) { return e.id == id; });
+                           [&](const EnemyDef &e) { return e.id == id; });
     return it == enemies.end() ? nullptr : &(*it);
 }
 
@@ -49,8 +49,8 @@ Result run(entity::Character &player, const EnemyDef &enemyDef,
 
         int taken = rollDamage(enemyDef.attack, player.defense);
         player.hp = std::max(0, player.hp - taken);
-        out << enemyDef.name << " strikes back for " << taken
-            << " damage. (" << player.hp << "/" << player.maxHp << " HP)\n";
+        out << enemyDef.name << " strikes back for " << taken << " damage. ("
+            << player.hp << "/" << player.maxHp << " HP)\n";
     }
 
     if (player.hp == 0) {
@@ -58,8 +58,7 @@ Result run(entity::Character &player, const EnemyDef &enemyDef,
         return Result::Defeat;
     }
 
-    out << "\n"
-        << enemyDef.name << " falls.\n";
+    out << "\n" << enemyDef.name << " falls.\n";
     player.gainXp(enemyDef.xpReward);
     out << "You gain " << enemyDef.xpReward << " XP.\n";
     if (!enemyDef.lootItemId.empty()) {

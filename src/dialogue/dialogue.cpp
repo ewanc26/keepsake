@@ -8,7 +8,7 @@ namespace keepsake::dialogue {
 
 const Node *Tree::find(const std::string &id) const {
     auto it = std::find_if(nodes.begin(), nodes.end(),
-                            [&](const Node &n) { return n.id == id; });
+                           [&](const Node &n) { return n.id == id; });
     return it == nodes.end() ? nullptr : &(*it);
 }
 
@@ -60,15 +60,15 @@ const std::vector<NpcDef> &npcRegistry() {
 const NpcDef *findNpcDef(const std::string &id) {
     const auto &npcs = npcRegistry();
     auto it = std::find_if(npcs.begin(), npcs.end(),
-                            [&](const NpcDef &n) { return n.id == id; });
+                           [&](const NpcDef &n) { return n.id == id; });
     return it == npcs.end() ? nullptr : &(*it);
 }
 
 namespace {
 
 void applyOption(const Option &opt, entity::Character &player,
-                  quest::Progress &progress, std::ostream &out,
-                  const std::string &npcName) {
+                 quest::Progress &progress, std::ostream &out,
+                 const std::string &npcName) {
     bool flagAlreadySet = false;
     if (!opt.setFlag.empty()) {
         flagAlreadySet = quest::hasFlag(progress, opt.setFlag);

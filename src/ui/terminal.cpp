@@ -14,7 +14,7 @@ namespace {
 
 std::string toLower(std::string s) {
     std::transform(s.begin(), s.end(), s.begin(),
-                    [](unsigned char c) { return std::tolower(c); });
+                   [](unsigned char c) { return std::tolower(c); });
     return s;
 }
 
@@ -43,7 +43,7 @@ Command parseCommand(const std::string &line) {
 }
 
 const entity::ItemDef *matchItemAmong(const std::string &query,
-                                       const std::vector<std::string> &ids) {
+                                      const std::vector<std::string> &ids) {
     for (const auto &id : ids) {
         const auto *def = entity::findItemDef(id);
         if (def == nullptr) continue;
@@ -97,8 +97,8 @@ bool doSave(entity::Character &player, quest::Progress &progress,
 } // namespace
 
 void run(world::World &world, entity::Character &player,
-         quest::Progress &progress, sync::RecordStore &store,
-         std::istream &in, std::ostream &out) {
+         quest::Progress &progress, sync::RecordStore &store, std::istream &in,
+         std::ostream &out) {
     world::Location *current = world.find(progress.location);
     if (current == nullptr) {
         // A corrupt or hand-edited save pointed at a location that no
@@ -162,13 +162,12 @@ void run(world::World &world, entity::Character &player,
             }
             player.addItem(def->id);
             current->itemIds.erase(std::remove(current->itemIds.begin(),
-                                                current->itemIds.end(),
-                                                def->id),
-                                    current->itemIds.end());
+                                               current->itemIds.end(), def->id),
+                                   current->itemIds.end());
             // Persisted so World::reconcile() knows not to respawn this on
             // the next load — see world.cpp.
             quest::setFlag(progress,
-                            "item.taken." + current->id + "." + def->id);
+                           "item.taken." + current->id + "." + def->id);
             out << "You take the " << def->name << ".\n";
         } else if (cmd.verb == "use") {
             if (cmd.arg.empty()) {
@@ -176,7 +175,8 @@ void run(world::World &world, entity::Character &player,
                 continue;
             }
             std::vector<std::string> owned;
-            for (const auto &stack : player.inventory) owned.push_back(stack.itemId);
+            for (const auto &stack : player.inventory)
+                owned.push_back(stack.itemId);
             const auto *def = matchItemAmong(cmd.arg, owned);
             if (def == nullptr) {
                 out << "You don't have that.\n";
@@ -248,11 +248,11 @@ void run(world::World &world, entity::Character &player,
             }
         } else if (cmd.verb == "save") {
             out << (doSave(player, progress, store) ? "Saved.\n"
-                                                      : "Save failed.\n");
+                                                    : "Save failed.\n");
         } else if (cmd.verb == "quit") {
             bool ok = doSave(player, progress, store);
             out << (ok ? "Saved. Farewell.\n"
-                        : "Save failed, exiting anyway.\n");
+                       : "Save failed, exiting anyway.\n");
             return;
         } else {
             out << "I don't understand that. Type 'help' for a list of "

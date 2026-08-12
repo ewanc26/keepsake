@@ -15,8 +15,8 @@ namespace keepsake::ui {
 // or the input stream ends. This is the only place that owns `store` —
 // nothing else in the game reads or writes a save.
 void run(world::World &world, entity::Character &player,
-         quest::Progress &progress, sync::RecordStore &store,
-         std::istream &in, std::ostream &out);
+         quest::Progress &progress, sync::RecordStore &store, std::istream &in,
+         std::ostream &out);
 
 } // namespace keepsake::ui
 

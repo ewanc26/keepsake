@@ -21,7 +21,7 @@ const std::vector<ItemDef> &itemRegistry() {
 const ItemDef *findItemDef(const std::string &id) {
     const auto &items = itemRegistry();
     auto it = std::find_if(items.begin(), items.end(),
-                            [&](const ItemDef &d) { return d.id == id; });
+                           [&](const ItemDef &d) { return d.id == id; });
     return it == items.end() ? nullptr : &(*it);
 }
 
