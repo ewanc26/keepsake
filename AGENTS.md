@@ -236,10 +236,7 @@ here is ambiguous.
 - **Feature branches, `--no-ff` merges**: land work on `feat/<area>` (or
   `fix/<area>`), merge to `main` with `git merge --no-ff` so the branch
   structure survives in history.
-- **No AI co-authors**: commits must not carry a `Co-authored-by:` trailer
-  crediting an AI agent, and must not reference the specific AI model used,
-  in the commit message, a PR, or code comments. Credit for committed work
-  goes to human authors only.
+- **Honest attribution**: commits may carry a `Co-authored-by:` trailer crediting an AI agent, and may reference the specific model used, in the commit message, a PR, or code comments — attribution should reflect who/what actually did the work.
 - **No commented-out code** left in place; delete dead code or move it to
   a test.
 - Do not open a pull request unless explicitly asked.
