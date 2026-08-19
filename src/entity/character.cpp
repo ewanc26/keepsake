@@ -9,9 +9,35 @@ namespace {
 const std::vector<ItemDef> &itemRegistry() {
     static const std::vector<ItemDef> items = {
         {"health_potion", "health potion",
-         "A small clay vial, still cool to the touch.", true, 15, 0},
+         "A small clay vial, still cool to the touch.", true, 15, 0, 0},
         {"iron_sword", "iron sword",
-         "Notched and rust-spotted, but the edge still bites.", false, 0, 3},
+         "Notched and rust-spotted, but the edge still bites.", false, 0, 3,
+         0},
+        {"rusty_dagger", "rusty dagger",
+         "Light and quick, though the rust has eaten into the blade.",
+         false, 0, 1, 0},
+        {"leather_armor", "leather armor",
+         "Cracked and stiff with age, but it still turns a blow.", false, 0,
+         0, 2},
+        {"silver_locket", "silver locket",
+         "Tarnished silver, warm despite the cold down here. The Watcher's "
+         "keepsake — you'd know it anywhere.",
+         false, 0, 0, 0},
+        {"silk_gloves", "silk gloves",
+         "Woven from spider-silk, near-weightless, and stronger than they "
+         "look.", false, 0, 0, 1},
+        {"steel_sword", "steel sword",
+         "Unlike anything else down here, kept oiled and sharp. Someone "
+         "wanted this to last.", false, 0, 6, 0},
+        {"scale_mail", "scale mail",
+         "Overlapping plates, cold and heavy, scarred by whatever wore it "
+         "last.", false, 0, 0, 5},
+        {"health_elixir", "health elixir",
+         "Thicker and darker than a potion, and it smells like copper.",
+         true, 35, 0, 0},
+        {"ring_of_the_watcher", "ring of the Watcher",
+         "A plain iron band, worn smooth. It was old before the Watcher "
+         "ever held it.", false, 0, 4, 4},
     };
     return items;
 }

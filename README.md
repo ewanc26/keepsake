@@ -6,9 +6,16 @@ A text-based RPG in C++ where your AT Protocol DID is the save file.
 
 ## Status
 
-The local game (rooms, an NPC, a boss, a short quest) is fully playable
-offline. Signed in, the same character sheet and quest progress live as
-`click.croft.rpg.*` records in your own PDS, and quest completions broadcast
+The local game (fourteen rooms across the keep, the crypt beneath it, a
+side-passage spider den, and a final descent into the Abyss; an NPC; four
+enemies plus three bosses; three linked quests) is fully playable offline.
+The last boss, the Nameless Thing, can be talked down instead of fought —
+its dialogue tree resolves that quest and hands over its reward peacefully,
+or (declining, or attacking outright) the same quest resolves through
+combat instead, with the same reward as loot either way; which path you
+took is just a different route to the same flag. Signed in, the same
+character sheet and quest progress live as `click.croft.rpg.*` records in
+your own PDS, and each quest's completion — however it resolved — broadcasts
 a verifiable achievement plus a world event other players' clients could
 someday react to. See [Roadmap](#roadmap) for exactly what's built, what's
 verified against live infrastructure, and what's designed but not yet wired
@@ -16,14 +23,20 @@ up.
 
 ## Concept
 
-You explore a small, ruined keep as a `wf`-flavoured text adventure: rooms,
-an NPC, a boss, a short quest. Signed in, your character sheet and quest
-progress are ordinary records in your own PDS repo — the game follows your
-DID to any machine you sign into, and no Keepsake server ever needs to
-exist. Defeating the keep's boss writes a `click.croft.rpg.achievement`
-record (verifiable by anyone, directly from your repo) and a
-`click.croft.rpg.event` record broadcasting it over the firehose — the
-beginning of a shared world where other players' actions could someday
+You explore a small, ruined keep — and, once you clear it, the crypt buried
+beneath it, and beneath that, whatever the crypt's own guardian was itself
+guarding — as a `wf`-flavoured text adventure: rooms, an NPC, three bosses,
+a three-part quest chasing down the Watcher's stolen keepsake to its source.
+The ending isn't fixed: the last boss can be reasoned with as easily as
+fought, and the game reacts to whichever the player chooses rather than
+funneling both toward one outcome. Signed in, your character sheet and
+quest progress are ordinary records in your own PDS repo — the game follows
+your DID to any machine you sign into, and no Keepsake server ever needs to
+exist. Defeating (or, for the last one, talking down) a boss writes a
+`click.croft.rpg.achievement` record (verifiable by anyone, directly from
+your repo) and a `click.croft.rpg.event` record broadcasting it over the
+firehose — the beginning of a shared world where other players' actions
+could someday
 ripple into yours.
 
 ## Identity

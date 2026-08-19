@@ -59,6 +59,7 @@ keepsake_add_test(dialogue_test
     src/dialogue/dialogue.cpp src/entity/character.cpp src/quest/quest.cpp)
 keepsake_add_test(identity_test
     src/identity/identity.cpp src/save/json.cpp src/util/xdg.cpp)
+keepsake_add_test(world_test src/world/world.cpp src/quest/quest.cpp)
 
 if(KEEPSAKE_WITH_WOLFRAM)
     # Build only what the OAuth/sync layer needs — no server, no bundled

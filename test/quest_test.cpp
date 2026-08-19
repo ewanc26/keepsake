@@ -74,6 +74,32 @@ int main() {
         CHECK(p.flags.empty());
     }
 
+    // onEnemyDefeated: only the rot_warden completes the_keepsake, and it's
+    // independent of keep_cleared's flag.
+    {
+        Progress p;
+        onEnemyDefeated(p, "rot_warden");
+        CHECK(hasFlag(p, "quest.the_keepsake.complete"));
+        CHECK(!hasFlag(p, "quest.keep_cleared.complete"));
+    }
+
+    // onEnemyDefeated: only the nameless_thing completes the_nameless. (Its
+    // *peaceful* resolution bypasses this entirely — see dialogue_test.cpp
+    // — so this only covers the combat path.)
+    {
+        Progress p;
+        onEnemyDefeated(p, "nameless_thing");
+        CHECK(hasFlag(p, "quest.the_nameless.complete"));
+    }
+
+    // allQuests() carries all three quests, in order.
+    {
+        CHECK(allQuests().size() == 3);
+        CHECK(allQuests()[0].id == "keep_cleared");
+        CHECK(allQuests()[1].id == "the_keepsake");
+        CHECK(allQuests()[2].id == "the_nameless");
+    }
+
     std::cout << "quest_test " << (g_failures ? "FAILED" : "OK") << "\n";
     return g_failures ? 1 : 0;
 }
