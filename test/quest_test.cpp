@@ -74,6 +74,22 @@ int main() {
         CHECK(p.flags.empty());
     }
 
+    // onEnemyDefeated: only the rot_warden completes the_keepsake, and it's
+    // independent of keep_cleared's flag.
+    {
+        Progress p;
+        onEnemyDefeated(p, "rot_warden");
+        CHECK(hasFlag(p, "quest.the_keepsake.complete"));
+        CHECK(!hasFlag(p, "quest.keep_cleared.complete"));
+    }
+
+    // allQuests() carries both quests, in order.
+    {
+        CHECK(allQuests().size() == 2);
+        CHECK(allQuests()[0].id == "keep_cleared");
+        CHECK(allQuests()[1].id == "the_keepsake");
+    }
+
     std::cout << "quest_test " << (g_failures ? "FAILED" : "OK") << "\n";
     return g_failures ? 1 : 0;
 }

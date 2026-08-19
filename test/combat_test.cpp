@@ -36,6 +36,20 @@ int main() {
         CHECK(findEnemyDef("no_such_enemy") == nullptr);
     }
 
+    // The deeper dungeon's enemies are registered, and the Rot Warden
+    // carries the quest-critical locket as loot.
+    {
+        const EnemyDef *thrall = findEnemyDef("skeletal_thrall");
+        CHECK(thrall != nullptr);
+
+        const EnemyDef *crawler = findEnemyDef("tunnel_crawler");
+        CHECK(crawler != nullptr);
+
+        const EnemyDef *warden = findEnemyDef("rot_warden");
+        CHECK(warden != nullptr);
+        if (warden != nullptr) CHECK(warden->lootItemId == "silver_locket");
+    }
+
     // Victory: player's attack dwarfs the enemy's HP, so even with -2
     // variance the enemy dies on the first strike, before it can counter —
     // player.hp must be untouched, XP granted, loot added.

@@ -9,9 +9,20 @@ namespace {
 const std::vector<ItemDef> &itemRegistry() {
     static const std::vector<ItemDef> items = {
         {"health_potion", "health potion",
-         "A small clay vial, still cool to the touch.", true, 15, 0},
+         "A small clay vial, still cool to the touch.", true, 15, 0, 0},
         {"iron_sword", "iron sword",
-         "Notched and rust-spotted, but the edge still bites.", false, 0, 3},
+         "Notched and rust-spotted, but the edge still bites.", false, 0, 3,
+         0},
+        {"rusty_dagger", "rusty dagger",
+         "Light and quick, though the rust has eaten into the blade.",
+         false, 0, 1, 0},
+        {"leather_armor", "leather armor",
+         "Cracked and stiff with age, but it still turns a blow.", false, 0,
+         0, 2},
+        {"silver_locket", "silver locket",
+         "Tarnished silver, warm despite the cold down here. The Watcher's "
+         "keepsake — you'd know it anywhere.",
+         false, 0, 0, 0},
     };
     return items;
 }

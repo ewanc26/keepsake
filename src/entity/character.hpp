@@ -12,10 +12,11 @@ struct ItemStack {
 };
 
 // A static item definition. `consumable` items are removed on use and heal
-// `healAmount`; non-consumable items with a nonzero `attackBonus` are a
-// one-time permanent upgrade applied (and then removed from the inventory)
-// on use — there is no equipment-slot system in Phase 1, just this one-shot
-// shortcut.
+// `healAmount`; non-consumable items with a nonzero `attackBonus` or
+// `defenseBonus` are a one-time permanent upgrade applied (and then removed
+// from the inventory) on use — there is no equipment-slot system in Phase 1,
+// just this one-shot shortcut. An item with neither is a quest item: `use`
+// on it is a no-op.
 struct ItemDef {
     std::string id;
     std::string name;
@@ -23,6 +24,7 @@ struct ItemDef {
     bool consumable = false;
     int healAmount = 0;
     int attackBonus = 0;
+    int defenseBonus = 0;
 };
 
 const ItemDef *findItemDef(const std::string &id);

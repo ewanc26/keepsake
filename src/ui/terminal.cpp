@@ -205,8 +205,13 @@ void run(world::World &world, entity::Character &player,
                 player.removeItem(def->id, 1);
                 out << "The " << def->name << " settles into your grip. "
                     << "Attack +" << def->attackBonus << ".\n";
+            } else if (def->defenseBonus > 0) {
+                player.defense += def->defenseBonus;
+                player.removeItem(def->id, 1);
+                out << "You strap on the " << def->name << ". Defense +"
+                    << def->defenseBonus << ".\n";
             } else {
-                out << "Nothing happens.\n";
+                out << "Nothing happens, but it feels important to keep.\n";
             }
         } else if (cmd.verb == "talk") {
             if (cmd.arg.empty()) {
@@ -231,17 +236,31 @@ void run(world::World &world, entity::Character &player,
             }
             combat::Result result = combat::run(player, *enemy, out);
             if (result == combat::Result::Victory) {
-                bool wasComplete =
+                bool keepClearedWasComplete =
                     quest::hasFlag(progress, "quest.keep_cleared.complete");
+                bool keepsakeWasComplete =
+                    quest::hasFlag(progress, "quest.the_keepsake.complete");
                 quest::onEnemyDefeated(progress, enemy->id);
                 current->enemyId.reset();
+                // Re-run so a quest completing this kill (e.g. the crypt
+                // stair opening once keep_cleared completes) takes effect
+                // immediately rather than only on the next load —
+                // world::World::reconcile() is safe to call repeatedly.
+                world.reconcile(progress);
                 // Broadcasts nothing when signed out — RecordStore's
                 // default implementation of these is a no-op. Fires once,
                 // on the not-complete -> complete transition, not on
                 // every subsequent load of an already-completed save.
-                if (!wasComplete &&
+                if (!keepClearedWasComplete &&
                     quest::hasFlag(progress, "quest.keep_cleared.complete")) {
                     store.recordAchievement("keep_cleared", "The Weight Below");
+                    store.recordEvent("enemyDefeated", current->id,
+                                      enemy->name + " has fallen.");
+                }
+                if (!keepsakeWasComplete &&
+                    quest::hasFlag(progress, "quest.the_keepsake.complete")) {
+                    store.recordAchievement("the_keepsake",
+                                            "What the Deep Kept");
                     store.recordEvent("enemyDefeated", current->id,
                                       enemy->name + " has fallen.");
                 }

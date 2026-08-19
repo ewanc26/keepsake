@@ -10,6 +10,9 @@ namespace {
 const std::vector<EnemyDef> &enemyRegistry() {
     static const std::vector<EnemyDef> enemies = {
         {"hollow_knight", "the Hollow Knight", 24, 4, 1, 45, ""},
+        {"skeletal_thrall", "a skeletal thrall", 16, 3, 0, 18, ""},
+        {"tunnel_crawler", "the tunnel crawler", 20, 5, 1, 25, ""},
+        {"rot_warden", "the Rot Warden", 40, 6, 2, 80, "silver_locket"},
     };
     return enemies;
 }

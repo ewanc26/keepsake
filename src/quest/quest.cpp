@@ -19,6 +19,11 @@ const std::vector<QuestDef> &allQuests() {
          "The Watcher's keepsake was taken by whatever now nests in the "
          "undercroft. Go and take it back.",
          "quest.keep_cleared.started", "quest.keep_cleared.complete"},
+        {"the_keepsake", "What the Deep Kept",
+         "The undercroft was only the antechamber. Whatever took the "
+         "Watcher's keepsake carried it further down still — into the "
+         "crypt below, and whatever the Rot Warden guards there.",
+         "quest.the_keepsake.started", "quest.the_keepsake.complete"},
     };
     return quests;
 }
@@ -32,6 +37,8 @@ std::string questState(const Progress &progress, const QuestDef &quest) {
 void onEnemyDefeated(Progress &progress, const std::string &enemyId) {
     if (enemyId == "hollow_knight") {
         setFlag(progress, "quest.keep_cleared.complete");
+    } else if (enemyId == "rot_warden") {
+        setFlag(progress, "quest.the_keepsake.complete");
     }
 }
 

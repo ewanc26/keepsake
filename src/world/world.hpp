@@ -21,7 +21,10 @@ class World {
     // `progress`. Content-specific by nature (it knows the undercroft's
     // enemy is tied to the keep_cleared quest); extend it alongside
     // whatever new content ties world state to a flag.
-    void reconcile(const quest::Progress &progress);
+    // Takes `progress` by non-const reference: some reconciliations (e.g.
+    // the crypt stair opening up) also set the flag that starts the next
+    // quest.
+    void reconcile(quest::Progress &progress);
 
     const Location *find(const std::string &id) const;
     Location *find(const std::string &id);
