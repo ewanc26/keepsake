@@ -24,6 +24,11 @@ const std::vector<QuestDef> &allQuests() {
          "Watcher's keepsake carried it further down still — into the "
          "crypt below, and whatever the Rot Warden guards there.",
          "quest.the_keepsake.started", "quest.the_keepsake.complete"},
+        {"the_nameless", "The Last Door",
+         "Beneath the vault the Rot Warden kept sealed, a stair goes down "
+         "further still, to whatever the Rot Warden itself was guarding "
+         "against.",
+         "quest.the_nameless.started", "quest.the_nameless.complete"},
     };
     return quests;
 }
@@ -39,6 +44,11 @@ void onEnemyDefeated(Progress &progress, const std::string &enemyId) {
         setFlag(progress, "quest.keep_cleared.complete");
     } else if (enemyId == "rot_warden") {
         setFlag(progress, "quest.the_keepsake.complete");
+    } else if (enemyId == "nameless_thing") {
+        // Combat is only one of two ways this quest resolves — see the
+        // "nameless_thing" dialogue tree for the peaceful branch, which
+        // sets quest.the_nameless.complete directly instead.
+        setFlag(progress, "quest.the_nameless.complete");
     }
 }
 

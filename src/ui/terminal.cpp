@@ -102,6 +102,42 @@ bool doSave(entity::Character &player, quest::Progress &progress,
     return store.save(save::SaveData{player, progress});
 }
 
+// Every quest broadcasts under its id/name on the not-complete -> complete
+// transition, regardless of whether that transition happened through
+// combat (combat::run + quest::onEnemyDefeated) or a dialogue branch that
+// sets a quest's completeFlag directly (see "nameless_thing" in
+// dialogue.cpp) — so both `attack` and `talk` snapshot flags before acting
+// and hand the snapshot here afterward. `locationId` and `cause` describe
+// what actually happened, for the event line.
+using QuestFlagSnapshot = std::vector<std::pair<std::string, bool>>;
+
+QuestFlagSnapshot snapshotQuestFlags(const quest::Progress &progress) {
+    QuestFlagSnapshot snapshot;
+    for (const auto &q : quest::allQuests()) {
+        snapshot.emplace_back(q.id, quest::hasFlag(progress, q.completeFlag));
+    }
+    return snapshot;
+}
+
+void broadcastNewlyCompleted(const QuestFlagSnapshot &before,
+                             const quest::Progress &progress,
+                             sync::RecordStore &store,
+                             const std::string &locationId,
+                             const std::string &cause) {
+    for (const auto &q : quest::allQuests()) {
+        bool wasComplete = false;
+        for (const auto &entry : before) {
+            if (entry.first == q.id) wasComplete = entry.second;
+        }
+        // Broadcasts nothing when signed out — RecordStore's default
+        // implementation of these is a no-op.
+        if (!wasComplete && quest::hasFlag(progress, q.completeFlag)) {
+            store.recordAchievement(q.id, q.name);
+            store.recordEvent("questCompleted", locationId, cause);
+        }
+    }
+}
+
 } // namespace
 
 void run(world::World &world, entity::Character &player,
@@ -200,16 +236,16 @@ void run(world::World &world, entity::Character &player,
                 player.removeItem(def->id, 1);
                 out << "You drink the " << def->name << ". (" << player.hp
                     << "/" << player.maxHp << " HP)\n";
-            } else if (def->attackBonus > 0) {
+            } else if (def->attackBonus > 0 || def->defenseBonus > 0) {
+                // A permanent upgrade — one or both stats, applied together
+                // so an item like a ring can grant both at once.
                 player.attack += def->attackBonus;
-                player.removeItem(def->id, 1);
-                out << "The " << def->name << " settles into your grip. "
-                    << "Attack +" << def->attackBonus << ".\n";
-            } else if (def->defenseBonus > 0) {
                 player.defense += def->defenseBonus;
                 player.removeItem(def->id, 1);
-                out << "You strap on the " << def->name << ". Defense +"
-                    << def->defenseBonus << ".\n";
+                out << "The " << def->name << " settles into place.";
+                if (def->attackBonus > 0) out << " Attack +" << def->attackBonus << ".";
+                if (def->defenseBonus > 0) out << " Defense +" << def->defenseBonus << ".";
+                out << "\n";
             } else {
                 out << "Nothing happens, but it feels important to keep.\n";
             }
@@ -223,7 +259,18 @@ void run(world::World &world, entity::Character &player,
                 continue;
             }
             const auto *npc = dialogue::findNpcDef(*current->npcId);
-            if (npc != nullptr) dialogue::run(*npc, player, progress, in, out);
+            if (npc != nullptr) {
+                QuestFlagSnapshot before = snapshotQuestFlags(progress);
+                dialogue::run(*npc, player, progress, in, out);
+                // A dialogue branch may have resolved a quest on its own
+                // (see "nameless_thing"'s peaceful branch) — reconcile so
+                // any world change that unlocks (or, here, an enemy/NPC
+                // that should now stand down) takes effect immediately,
+                // same as the post-combat path below.
+                world.reconcile(progress);
+                broadcastNewlyCompleted(before, progress, store, current->id,
+                                        npc->name + " let you pass.");
+            }
         } else if (cmd.verb == "attack") {
             if (!current->enemyId) {
                 out << "There's nothing to fight here.\n";
@@ -236,10 +283,7 @@ void run(world::World &world, entity::Character &player,
             }
             combat::Result result = combat::run(player, *enemy, out);
             if (result == combat::Result::Victory) {
-                bool keepClearedWasComplete =
-                    quest::hasFlag(progress, "quest.keep_cleared.complete");
-                bool keepsakeWasComplete =
-                    quest::hasFlag(progress, "quest.the_keepsake.complete");
+                QuestFlagSnapshot before = snapshotQuestFlags(progress);
                 quest::onEnemyDefeated(progress, enemy->id);
                 current->enemyId.reset();
                 // Re-run so a quest completing this kill (e.g. the crypt
@@ -247,23 +291,8 @@ void run(world::World &world, entity::Character &player,
                 // immediately rather than only on the next load —
                 // world::World::reconcile() is safe to call repeatedly.
                 world.reconcile(progress);
-                // Broadcasts nothing when signed out — RecordStore's
-                // default implementation of these is a no-op. Fires once,
-                // on the not-complete -> complete transition, not on
-                // every subsequent load of an already-completed save.
-                if (!keepClearedWasComplete &&
-                    quest::hasFlag(progress, "quest.keep_cleared.complete")) {
-                    store.recordAchievement("keep_cleared", "The Weight Below");
-                    store.recordEvent("enemyDefeated", current->id,
-                                      enemy->name + " has fallen.");
-                }
-                if (!keepsakeWasComplete &&
-                    quest::hasFlag(progress, "quest.the_keepsake.complete")) {
-                    store.recordAchievement("the_keepsake",
-                                            "What the Deep Kept");
-                    store.recordEvent("enemyDefeated", current->id,
-                                      enemy->name + " has fallen.");
-                }
+                broadcastNewlyCompleted(before, progress, store, current->id,
+                                        enemy->name + " has fallen.");
             } else {
                 out << "\nYour last save is untouched — reload to try "
                        "again.\n";

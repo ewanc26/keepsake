@@ -23,6 +23,21 @@ const std::vector<ItemDef> &itemRegistry() {
          "Tarnished silver, warm despite the cold down here. The Watcher's "
          "keepsake — you'd know it anywhere.",
          false, 0, 0, 0},
+        {"silk_gloves", "silk gloves",
+         "Woven from spider-silk, near-weightless, and stronger than they "
+         "look.", false, 0, 0, 1},
+        {"steel_sword", "steel sword",
+         "Unlike anything else down here, kept oiled and sharp. Someone "
+         "wanted this to last.", false, 0, 6, 0},
+        {"scale_mail", "scale mail",
+         "Overlapping plates, cold and heavy, scarred by whatever wore it "
+         "last.", false, 0, 0, 5},
+        {"health_elixir", "health elixir",
+         "Thicker and darker than a potion, and it smells like copper.",
+         true, 35, 0, 0},
+        {"ring_of_the_watcher", "ring of the Watcher",
+         "A plain iron band, worn smooth. It was old before the Watcher "
+         "ever held it.", false, 0, 4, 4},
     };
     return items;
 }

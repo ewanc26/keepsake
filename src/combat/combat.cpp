@@ -11,8 +11,11 @@ const std::vector<EnemyDef> &enemyRegistry() {
     static const std::vector<EnemyDef> enemies = {
         {"hollow_knight", "the Hollow Knight", 24, 4, 1, 45, ""},
         {"skeletal_thrall", "a skeletal thrall", 16, 3, 0, 18, ""},
-        {"tunnel_crawler", "the tunnel crawler", 20, 5, 1, 25, ""},
+        {"cave_spider", "a cave spider", 10, 2, 0, 10, "silk_gloves"},
+        {"tunnel_crawler", "the tunnel crawler", 20, 5, 1, 25, "steel_sword"},
         {"rot_warden", "the Rot Warden", 40, 6, 2, 80, "silver_locket"},
+        {"nameless_thing", "the Nameless Thing", 60, 8, 3, 150,
+         "ring_of_the_watcher"},
     };
     return enemies;
 }

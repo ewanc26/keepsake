@@ -138,6 +138,40 @@ int main() {
             !keepsake::quest::hasFlag(progress, "quest.keep_cleared.started"));
     }
 
+    // "nameless_thing" peaceful branch: "Why are you here?" -> "Let me
+    // stand in your place." resolves quest.the_nameless.complete directly
+    // (not via quest::onEnemyDefeated) and hands over the ring as a gift.
+    {
+        const NpcDef *nameless = findNpcDef("nameless_thing");
+        CHECK(nameless != nullptr);
+
+        Character player;
+        Progress progress;
+        std::istringstream in("1\n1\n1\n");
+        std::ostringstream out;
+
+        run(*nameless, player, progress, in, out);
+
+        CHECK(keepsake::quest::hasFlag(progress, "quest.the_nameless.complete"));
+        CHECK(player.itemCount("ring_of_the_watcher") == 1);
+    }
+
+    // The "goad" branch leaves the quest unresolved — the encounter falls
+    // through to `attack` instead, same as declining to talk at all.
+    {
+        const NpcDef *nameless = findNpcDef("nameless_thing");
+        Character player;
+        Progress progress;
+        std::istringstream in("1\n2\n1\n");
+        std::ostringstream out;
+
+        run(*nameless, player, progress, in, out);
+
+        CHECK(
+            !keepsake::quest::hasFlag(progress, "quest.the_nameless.complete"));
+        CHECK(player.inventory.empty());
+    }
+
     std::cout << "dialogue_test " << (g_failures ? "FAILED" : "OK") << "\n";
     return g_failures ? 1 : 0;
 }

@@ -30,8 +30,9 @@ int main() {
         World w = World::createDefault();
         for (const char *id : {"gatehouse", "courtyard", "armory", "chapel",
                                "undercroft", "crypt_stair", "crypt",
-                               "bone_chamber", "flooded_tunnel",
-                               "sealed_vault"}) {
+                               "bone_chamber", "collapsed_passage",
+                               "spider_den", "flooded_tunnel", "sealed_vault",
+                               "abyssal_stair", "abyss"}) {
             CHECK(w.find(id) != nullptr);
         }
     }
@@ -73,6 +74,44 @@ int main() {
         }
         CHECK(downCount == 1);
         CHECK(keepsake::quest::hasFlag(p, "quest.the_keepsake.started"));
+    }
+
+    // Once the_keepsake completes too, the vault's boss clears and the
+    // abyssal stair opens — same "exactly once" guarantee.
+    {
+        World w = World::createDefault();
+        Progress p;
+        keepsake::quest::setFlag(p, "quest.keep_cleared.complete");
+        keepsake::quest::setFlag(p, "quest.the_keepsake.complete");
+
+        w.reconcile(p);
+        w.reconcile(p);
+
+        const Location *vault = w.find("sealed_vault");
+        CHECK(vault != nullptr);
+        CHECK(!vault->enemyId.has_value());
+
+        int downCount = 0;
+        for (const auto &exit : vault->exits) {
+            if (exit.direction == "down") ++downCount;
+        }
+        CHECK(downCount == 1);
+        CHECK(keepsake::quest::hasFlag(p, "quest.the_nameless.started"));
+    }
+
+    // The abyss's boss/NPC only clear once the_nameless completes, whether
+    // that happened through combat or the peaceful dialogue branch — either
+    // way reconcile() doesn't care which, only the flag.
+    {
+        World w = World::createDefault();
+        Progress p;
+        keepsake::quest::setFlag(p, "quest.the_nameless.complete");
+        w.reconcile(p);
+
+        const Location *abyss = w.find("abyss");
+        CHECK(abyss != nullptr);
+        CHECK(!abyss->enemyId.has_value());
+        CHECK(!abyss->npcId.has_value());
     }
 
     std::cout << "world_test " << (g_failures ? "FAILED" : "OK") << "\n";

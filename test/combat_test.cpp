@@ -36,18 +36,22 @@ int main() {
         CHECK(findEnemyDef("no_such_enemy") == nullptr);
     }
 
-    // The deeper dungeon's enemies are registered, and the Rot Warden
-    // carries the quest-critical locket as loot.
+    // The deeper dungeon's enemies are registered, and the two quest bosses
+    // carry their quest-critical items as loot.
     {
-        const EnemyDef *thrall = findEnemyDef("skeletal_thrall");
-        CHECK(thrall != nullptr);
-
-        const EnemyDef *crawler = findEnemyDef("tunnel_crawler");
-        CHECK(crawler != nullptr);
+        CHECK(findEnemyDef("skeletal_thrall") != nullptr);
+        CHECK(findEnemyDef("cave_spider") != nullptr);
+        CHECK(findEnemyDef("tunnel_crawler") != nullptr);
 
         const EnemyDef *warden = findEnemyDef("rot_warden");
         CHECK(warden != nullptr);
         if (warden != nullptr) CHECK(warden->lootItemId == "silver_locket");
+
+        const EnemyDef *nameless = findEnemyDef("nameless_thing");
+        CHECK(nameless != nullptr);
+        if (nameless != nullptr) {
+            CHECK(nameless->lootItemId == "ring_of_the_watcher");
+        }
     }
 
     // Victory: player's attack dwarfs the enemy's HP, so even with -2

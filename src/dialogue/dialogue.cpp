@@ -51,6 +51,56 @@ const std::vector<NpcDef> &npcRegistry() {
                   }},
              },
          }},
+        // Reachable from `abyss` for as long as quest.the_nameless.complete
+        // is unset — see World::reconcile(). Two of the three branches
+        // resolve the quest without a fight: "relieve" ends it peacefully
+        // (sets quest.the_nameless.complete directly and hands over the
+        // ring as a farewell gift, not loot); "goad" hands the encounter
+        // back to `attack`, unchanged from before this tree existed.
+        // "Ask nothing" just leaves — the player can `talk` again later.
+        {"nameless_thing", "the Nameless Thing",
+         Tree{
+             "start",
+             {
+                 {"start",
+                  "It doesn't attack. It just watches you, the way "
+                  "something watches whoever finally opens a door it's "
+                  "been holding shut. \"You came all this way,\" it says, "
+                  "\"and you still haven't asked why.\"",
+                  {
+                      {"Why are you here?", "explain", "", ""},
+                      {"I didn't come to talk.", "", "", ""},
+                  }},
+                 {"explain",
+                  "\"Something older than the keep wanted out, once. I'm "
+                  "what's left standing between it and everyone who's "
+                  "walked in after — the Warden, the Knight, all the ones "
+                  "you've already put down were just the outer doors. "
+                  "I'm the last one, and I have been for longer than "
+                  "you'd believe.\"",
+                  {
+                      {"Let me stand in your place.", "relieve",
+                       "quest.the_nameless.complete", "ring_of_the_watcher"},
+                      {"That's not my problem.", "goad", "", ""},
+                      {"I need to think about that.", "", "", ""},
+                  }},
+                 {"relieve",
+                  "Something in it that might be relief loosens its "
+                  "shoulders. It sets a plain iron ring into your palm — "
+                  "\"Not a reward. A door only opens from one side at a "
+                  "time.\" — and steps back, out past where the light "
+                  "reaches, and doesn't move again.",
+                  {
+                      {"...", "", "", ""},
+                  }},
+                 {"goad",
+                  "\"Then we're done talking,\" it says, and doesn't wait "
+                  "for you to agree.",
+                  {
+                      {"Fine.", "", "", ""},
+                  }},
+             },
+         }},
     };
     return npcs;
 }
