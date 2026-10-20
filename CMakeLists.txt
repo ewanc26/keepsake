@@ -81,10 +81,10 @@ if(KEEPSAKE_WITH_WOLFRAM)
     FetchContent_Declare(
         wolfram
         GIT_REPOSITORY https://github.com/ewanc26/wolfram.git
-        GIT_TAG v0.22.0
+        GIT_TAG v0.41.0
         GIT_SHALLOW TRUE)
     FetchContent_MakeAvailable(wolfram)
-    message(STATUS "keepsake: using wolfram v0.22.0 from ${wolfram_SOURCE_DIR}")
+    message(STATUS "keepsake: using wolfram v0.41.0 from ${wolfram_SOURCE_DIR}")
 
     list(APPEND KEEPSAKE_SOURCES
         src/oauth/url_encode.cpp

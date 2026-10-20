@@ -56,7 +56,7 @@ further change. See `src/identity/identity.hpp`.
 - A C++23 compiler (Apple Clang, GCC ≥ 13, or Clang ≥ 16)
 - CMake ≥ 3.20
 - Nothing else to install by hand: with `KEEPSAKE_WITH_WOLFRAM=ON` (the
-  default), configure fetches wolfram pinned to the `v0.22.0` release tag via
+  default), configure fetches wolfram pinned to the `v0.41.0` release tag via
   CMake's FetchContent.
 
 ## Build
