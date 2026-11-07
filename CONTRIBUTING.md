@@ -16,4 +16,4 @@ A text-based RPG where your AT Protocol DID is the save file
 
 ## Recent direction
 
-Recent commits: Sync AGENTS.md from zincfox; Sync AGENTS.md from zincfox; Sync AGENTS.md from zincfox; Sync CONTRIBUTING.md from zincfox; Sync CONTRIBUTING.md from zincfox
+Recent commits: chore(deps): pin wolfram to v0.41.0; docs: add Wolfram and build number policy to AGENTS.md; docs: document pinned wolfram dependency; build(wolfram): fetch SDK pinned to v0.22.0 via FetchContent; docs: tailor contributor and agent guidance (#2); Update issue template: config.yml; Update issue template: documentation.yml
