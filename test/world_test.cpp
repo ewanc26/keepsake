@@ -32,12 +32,58 @@ int main() {
     {
         World w = World::createDefault();
         for (const char *id : {"gatehouse", "courtyard", "armory", "chapel",
+                               "watchtower_base", "watchtower_top",
                                "undercroft", "crypt_stair", "crypt",
                                "bone_chamber", "collapsed_passage",
                                "spider_den", "flooded_tunnel", "sealed_vault",
                                "abyssal_stair", "abyss"}) {
             CHECK(w.find(id) != nullptr);
         }
+    }
+
+    // The watchtower hangs off the courtyard's west side and links
+    // through, with the crow waiting at the top.
+    {
+        World w = World::createDefault();
+        const Location *courtyard = w.find("courtyard");
+        const Location *base = w.find("watchtower_base");
+        const Location *top = w.find("watchtower_top");
+        CHECK(courtyard != nullptr && base != nullptr && top != nullptr);
+        bool hasWest = false;
+        for (const auto &exit : courtyard->exits) {
+            if (exit.direction == "west" && exit.targetId == "watchtower_base")
+                hasWest = true;
+        }
+        CHECK(hasWest);
+        CHECK(base->exits.size() == 2); // east + up
+        CHECK(top->npcId == std::nullopt);
+        CHECK(top->enemyId == std::string("carrion_crow"));
+    }
+
+    // Reconcile: once the bell quest completes, the belfry's crow stands
+    // down and its description reflects the rung bell — and stays
+    // consistent across repeated reconcile() calls.
+    {
+        World w = World::createDefault();
+        Progress p;
+        keepsake::quest::setFlag(p, "quest.the_bell.complete");
+        w.reconcile(p);
+        w.reconcile(p);
+
+        const Location *top = w.find("watchtower_top");
+        CHECK(top != nullptr);
+        CHECK(!top->enemyId.has_value());
+        CHECK(top->description.find("hangs clean again") != std::string::npos);
+    }
+
+    // Reconcile: an incomplete bell quest never touches the belfry.
+    {
+        World w = World::createDefault();
+        Progress p;
+        w.reconcile(p);
+        const Location *top = w.find("watchtower_top");
+        CHECK(top != nullptr);
+        CHECK(top->enemyId == std::string("carrion_crow"));
     }
 
     // Before keep_cleared, the undercroft has no way down.

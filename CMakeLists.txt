@@ -60,6 +60,12 @@ keepsake_add_test(dialogue_test
 keepsake_add_test(identity_test
     src/identity/identity.cpp src/save/json.cpp src/util/xdg.cpp)
 keepsake_add_test(world_test src/world/world.cpp src/quest/quest.cpp)
+# ui::run needs no save backend (RecordStore is stubbed in the test) and no
+# sync/ implementation, despite including record_store.hpp.
+keepsake_add_test(ui_test
+    src/ui/terminal.cpp src/world/world.cpp src/quest/quest.cpp
+    src/entity/character.cpp src/combat/combat.cpp
+    src/dialogue/dialogue.cpp)
 keepsake_add_test(local_record_store_test
     src/sync/local_record_store.cpp src/save/json.cpp src/save/save.cpp
     src/util/xdg.cpp src/entity/character.cpp src/quest/quest.cpp)

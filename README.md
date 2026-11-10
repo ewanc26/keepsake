@@ -6,9 +6,10 @@ A text-based RPG in C++ where your AT Protocol DID is the save file.
 
 ## Status
 
-The local game (fourteen rooms across the keep, the crypt beneath it, a
-side-passage spider den, and a final descent into the Abyss; an NPC; four
-enemies plus three bosses; three linked quests) is fully playable offline.
+The local game (sixteen rooms across the keep — including its watchtower —
+the crypt beneath it, a side-passage spider den, and a final descent into
+the Abyss; two NPCs; five enemies plus three bosses; three linked quests
+and one side quest) is fully playable offline.
 The last boss, the Nameless Thing, can be talked down instead of fought —
 its dialogue tree resolves that quest and hands over its reward peacefully,
 or (declining, or attacking outright) the same quest resolves through
@@ -25,9 +26,14 @@ up.
 
 You explore a small, ruined keep — and, once you clear it, the crypt buried
 beneath it, and beneath that, whatever the crypt's own guardian was itself
-guarding — as a `wf`-flavoured text adventure: rooms, an NPC, three bosses,
-a three-part quest chasing down the Watcher's stolen keepsake to its source.
-The ending isn't fixed: the last boss can be reasoned with as easily as
+guarding — as a `wf`-flavoured text adventure: rooms, NPCs, three bosses,
+a three-part quest chasing down the Watcher's stolen keepsake to its
+source, and a side quest in the watchtower: the Watcher will tell you about
+a carrion crow that has folded itself over the keep's bell and won't be
+argued off, if you ask him what else needs looking at — the bell is yours
+to take back (complete with the brass the crow made off with), and nothing
+in the main line ever requires it. The ending isn't fixed: the last boss
+can be reasoned with as easily as
 fought, and the game reacts to whichever the player chooses rather than
 funneling both toward one outcome. Signed in, your character sheet and
 quest progress are ordinary records in your own PDS repo — the game follows

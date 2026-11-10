@@ -29,6 +29,14 @@ const std::vector<QuestDef> &allQuests() {
          "further still, to whatever the Rot Warden itself was guarding "
          "against.",
          "quest.the_nameless.started", "quest.the_nameless.complete"},
+        // Side quest, started only through the Watcher's "tower"
+        // dialogue node (see dialogue.cpp) and completed by defeating the
+        // belfry crow through ordinary combat. Never gates the main line.
+        {"the_bell", "The Quiet Bell",
+         "The Watcher asks you to bring the keep's voice back: something "
+         "large has folded itself over the watchtower bell, and it won't "
+         "be argued off.",
+         "quest.the_bell.started", "quest.the_bell.complete"},
     };
     return quests;
 }
@@ -49,6 +57,10 @@ void onEnemyDefeated(Progress &progress, const std::string &enemyId) {
         // "nameless_thing" dialogue tree for the peaceful branch, which
         // sets quest.the_nameless.complete directly instead.
         setFlag(progress, "quest.the_nameless.complete");
+    } else if (enemyId == "carrion_crow") {
+        // Side quest the_bell — combat only; there is nothing to talk
+        // down in the belfry.
+        setFlag(progress, "quest.the_bell.complete");
     }
 }
 

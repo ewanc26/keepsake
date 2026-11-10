@@ -29,6 +29,8 @@ const std::vector<NpcDef> &npcRegistry() {
                       {"I'll help, if I can.", "accept",
                        "quest.keep_cleared.started", "health_potion"},
                       {"Just passing through.", "", "", ""},
+                      {"Anything else you'd want looked at?", "tower", "",
+                       ""},
                   }},
                  {"lore",
                   "\"The keep held the Wardens once, and this—\" he lifts "
@@ -48,6 +50,22 @@ const std::vector<NpcDef> &npcRegistry() {
                   "animal.\"",
                   {
                       {"I'll be careful.", "", "", ""},
+                  }},
+                 // Side quest "the_bell" (see quest.cpp): the Watcher can
+                 // point you at the watchtower crow before you ever climb
+                 // it. Purely optional — none of the three main quests
+                 // route through it, and it never blocks the abyss.
+                 {"tower",
+                  "\"Bells,\" he says, and rubs his beard. \"The keep's "
+                  "voice, once — storms, suppers, the ones who didn't come "
+                  "home. Silent now. Something with wings like a barn "
+                  "door folded itself over the clapper, and it won't be "
+                  "argued off. Made off with half the tower's brass while "
+                  "it was at it, from the look of the nest.\"",
+                  {
+                      {"I'll see about the bell.", "",
+                       "quest.the_bell.started", ""},
+                      {"Leave it to the birds.", "", "", ""},
                   }},
              },
          }},

@@ -41,7 +41,15 @@ int main() {
     {
         CHECK(findEnemyDef("skeletal_thrall") != nullptr);
         CHECK(findEnemyDef("cave_spider") != nullptr);
+        CHECK(findEnemyDef("carrion_crow") != nullptr);
         CHECK(findEnemyDef("tunnel_crawler") != nullptr);
+
+        const EnemyDef *crow = findEnemyDef("carrion_crow");
+        CHECK(crow != nullptr);
+        if (crow != nullptr) {
+            // The belfry loot — the side quest's reward item.
+            CHECK(crow->lootItemId == "brass_spyglass");
+        }
 
         const EnemyDef *warden = findEnemyDef("rot_warden");
         CHECK(warden != nullptr);

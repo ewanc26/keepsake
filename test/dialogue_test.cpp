@@ -172,6 +172,35 @@ int main() {
         CHECK(player.inventory.empty());
     }
 
+    // The watchtower branch (side quest the_bell): option 4 at "start"
+    // reaches the "tower" node; "I'll see about the bell." sets the
+    // quest-started flag, "Leave it to the birds." leaves it unset —
+    // and either way no item is granted and keep_cleared stays untouched.
+    {
+        const NpcDef *watcher = findNpcDef("watcher");
+        CHECK(watcher->tree.find("tower") != nullptr);
+
+        Character player;
+        Progress progress;
+        std::istringstream in("4\n1\n");
+        std::ostringstream out;
+        run(*watcher, player, progress, in, out);
+
+        CHECK(keepsake::quest::hasFlag(progress, "quest.the_bell.started"));
+        CHECK(!keepsake::quest::hasFlag(progress, "quest.keep_cleared.started"));
+        CHECK(player.inventory.empty());
+        CHECK(out.str().find("barn door") != std::string::npos);
+
+        // Declining the ask leaves the quest untouched.
+        Character player2;
+        Progress progress2;
+        std::istringstream in2("4\n2\n");
+        std::ostringstream out2;
+        run(*watcher, player2, progress2, in2, out2);
+
+        CHECK(!keepsake::quest::hasFlag(progress2, "quest.the_bell.started"));
+    }
+
     std::cout << "dialogue_test " << (g_failures ? "FAILED" : "OK") << "\n";
     return g_failures ? 1 : 0;
 }

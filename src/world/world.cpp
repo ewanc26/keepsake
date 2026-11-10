@@ -27,10 +27,42 @@ World World::createDefault() {
         "the Courtyard",
         "Weeds grow between old flagstones. An old man sits near a "
         "cracked well, watching the gate.",
-        {{"south", "gatehouse"}, {"east", "armory"}, {"north", "chapel"}},
+        {{"south", "gatehouse"}, {"east", "armory"}, {"north", "chapel"},
+         {"west", "watchtower_base"}},
         {},
         std::string("watcher"),
         std::nullopt,
+        {},
+    };
+
+    // The watchtower (side quest "the_bell", see quest.cpp and the
+    // Watcher's "tower" dialogue node): reachable from the courtyard, but
+    // the crow is purely optional content — nothing in the three main
+    // quests routes through it.
+    w.locations_["watchtower_base"] = Location{
+        "watchtower_base",
+        "the Watchtower Stair",
+        "A narrow spiral climbs the inside of the keep's western tower. "
+        "Wind comes down the stairwell smelling of marsh, and the bell "
+        "rope, frayed to a whisp, dangles past you from far above.",
+        {{"east", "courtyard"}, {"up", "watchtower_top"}},
+        {},
+        std::nullopt,
+        std::nullopt,
+        {},
+    };
+
+    w.locations_["watchtower_top"] = Location{
+        "watchtower_top",
+        "the Belfry",
+        "Wind combs across the open roof, and the marshes run out to "
+        "grey distance on every side. The keep's great bell hangs "
+        "verdigrised in its frame, half-buried in a nest of sticks, "
+        "bones, and stolen brass.",
+        {{"down", "watchtower_base"}},
+        {},
+        std::nullopt,
+        std::string("carrion_crow"),
         {},
     };
 
@@ -378,6 +410,22 @@ void World::reconcile(quest::Progress &progress) {
             openExitOnce(*vault, Exit{"down", "abyssal_stair"});
         }
         quest::setFlag(progress, "quest.the_nameless.started");
+    }
+
+    // The side quest's crow never blocks the main line — see the
+    // watchtower locations' comment in createDefault(). Once the bell is
+    // reclaimed (see quest.cpp's onEnemyDefeated, "carrion_crow"), the
+    // belfry settles and its description reflects it.
+    if (quest::hasFlag(progress, "quest.the_bell.complete")) {
+        if (Location *belfry = find("watchtower_top")) {
+            belfry->enemyId.reset();
+            belfry->description =
+                "Wind combs across the open roof, and the marshes run out "
+                "to grey distance on every side. The keep's great bell "
+                "hangs clean again, pushed clear of its foul nest, and "
+                "rings out when you test it — the keep's first word in "
+                "years.";
+        }
     }
 
     // Resolved either by combat (combat::run + quest::onEnemyDefeated) or

@@ -92,12 +92,28 @@ int main() {
         CHECK(hasFlag(p, "quest.the_nameless.complete"));
     }
 
-    // allQuests() carries all three quests, in order.
+    // onEnemyDefeated: only the carrion_crow completes the bell side
+    // quest — and it touches none of the main-line flags.
     {
-        CHECK(allQuests().size() == 3);
+        Progress p;
+        onEnemyDefeated(p, "carrion_crow");
+        CHECK(hasFlag(p, "quest.the_bell.complete"));
+        CHECK(!hasFlag(p, "quest.keep_cleared.complete"));
+        CHECK(!hasFlag(p, "quest.the_keepsake.complete"));
+        CHECK(!hasFlag(p, "quest.the_nameless.complete"));
+    }
+
+    // allQuests() carries the three main-line quests in order, then the
+    // bell side quest last — the main line's chain (keep_cleared ->
+    // the_keepsake -> the_nameless) is what allQuests()[0..2] ordering
+    // preserves, and callers iterate the whole list (the quest log, the
+    // broadcast snapshot) so a trailing side quest never disturbs them.
+    {
+        CHECK(allQuests().size() == 4);
         CHECK(allQuests()[0].id == "keep_cleared");
         CHECK(allQuests()[1].id == "the_keepsake");
         CHECK(allQuests()[2].id == "the_nameless");
+        CHECK(allQuests()[3].id == "the_bell");
     }
 
     std::cout << "quest_test " << (g_failures ? "FAILED" : "OK") << "\n";

@@ -26,6 +26,11 @@ const std::vector<ItemDef> &itemRegistry() {
         {"silk_gloves", "silk gloves",
          "Woven from spider-silk, near-weightless, and stronger than they "
          "look.", false, 0, 0, 1},
+        // Belfry loot (side quest "the_bell") — carried off by the crow
+        // with the rest of the tower's brass.
+        {"brass_spyglass", "brass spyglass",
+         "Dented and green with age, but the lenses still find their "
+         "mark. Part of the tower's brass, once.", false, 0, 2, 0},
         {"steel_sword", "steel sword",
          "Unlike anything else down here, kept oiled and sharp. Someone "
          "wanted this to last.", false, 0, 6, 0},
