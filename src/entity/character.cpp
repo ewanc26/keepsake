@@ -43,6 +43,25 @@ const std::vector<ItemDef> &itemRegistry() {
         {"ring_of_the_watcher", "ring of the Watcher",
          "A plain iron band, worn smooth. It was old before the Watcher "
          "ever held it.", false, 0, 4, 4},
+        // Readable lore notes (see ItemDef::readable). None are placed by
+        // the default world — they surface through the worldSeed's seeded
+        // cache spots in world.cpp, so each identity's world tells its own
+        // fragment of the keep's story.
+        {"note.watch_log", "watch log page",
+         "Night 400-odd. The bell went quiet at moonset and nobody went "
+         "up. I told them it was a bird; I have been telling myself that "
+         "for a long time now. The Knight no longer answers when I knock "
+         "on the undercroft door.", false, 0, 0, 0, true},
+        {"note.crypt_ledger", "crypt keeper's ledger",
+         "Interment, final: one of the Wardens, name struck through by "
+         "the Warden's own hand. Fee marked paid in full. Below, in a "
+         "different, older ink: 'We keep what keeps the door. Do not "
+         "count the stock.'", false, 0, 0, 0, true},
+        {"note.abyssal_inscription", "abyssal stair inscription",
+         "The steps are cut in something too old to read outright, but "
+         "one line fits any language you know: 'It is not the depth that "
+         "humiliates. It is that the door was opened for a reason, once, "
+         "and from the inside.'", false, 0, 0, 0, true},
     };
     return items;
 }

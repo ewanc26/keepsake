@@ -1,0 +1,18 @@
+#ifndef KEEPSAKE_VERSION_HPP
+#define KEEPSAKE_VERSION_HPP
+
+// Generated at configure time by CMakeLists.txt's configure_file() — do
+// not edit by hand, and do not add this to the release diff. Carries the
+// build identifiers AGENTS.md's policy requires every build to have: the
+// project version and a build id.
+//
+// KEEPSAKE_BUILD_ID is the 6-character short SHA of the commit the source
+// tree was configured from (the fallback identifier per AGENTS.md when CI
+// isn't recording commit SHAs); "unknown" means Git wasn't available at
+// configure time (e.g. building from an exported tarball) — fixed source
+// tarballs should replace it with the tag they were cut from.
+
+#define KEEPSAKE_VERSION "@PROJECT_VERSION@"
+#define KEEPSAKE_BUILD_ID "@KEEPSAKE_GIT_SHA@"
+
+#endif

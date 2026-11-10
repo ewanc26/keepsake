@@ -116,12 +116,33 @@ int main() {
         const ItemDef *locket = findItemDef("silver_locket");
         CHECK(locket != nullptr);
         if (locket != nullptr) {
-            // A quest item: neither consumable nor an upgrade — `use` is a
-            // no-op.
+            // A quest item: neither consumable nor an upgrade nor a note —
+            // `use` is a no-op.
             CHECK(!locket->consumable);
             CHECK(locket->healAmount == 0);
             CHECK(locket->attackBonus == 0);
             CHECK(locket->defenseBonus == 0);
+            CHECK(!locket->readable);
+        }
+
+        // Readable lore notes: every seeded note id resolves, and all of
+        // them are readable with no combat or healing effect — pure text
+        // the seed decides whether your world contains (see world.cpp's
+        // cacheSpots, which references these ids by string).
+        for (const char *noteId :
+             {"note.watch_log", "note.crypt_ledger",
+              "note.abyssal_inscription"}) {
+            const ItemDef *note = findItemDef(noteId);
+            CHECK(note != nullptr);
+            if (note != nullptr) {
+                CHECK(note->readable);
+                CHECK(!note->consumable);
+                CHECK(note->healAmount == 0);
+                CHECK(note->attackBonus == 0);
+                CHECK(note->defenseBonus == 0);
+                CHECK(!note->description.empty());
+                CHECK(!note->name.empty());
+            }
         }
     }
 

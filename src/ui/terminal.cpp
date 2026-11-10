@@ -246,6 +246,11 @@ void run(world::World &world, entity::Character &player,
                 if (def->attackBonus > 0) out << " Attack +" << def->attackBonus << ".";
                 if (def->defenseBonus > 0) out << " Defense +" << def->defenseBonus << ".";
                 out << "\n";
+            } else if (def->readable) {
+                // Lore notes are re-readable any number of times — not
+                // consumed, not applied, just read.
+                out << "You read the " << def->name << ":\n"
+                    << def->description << "\n";
             } else {
                 out << "Nothing happens, but it feels important to keep.\n";
             }

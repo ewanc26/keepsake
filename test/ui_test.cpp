@@ -225,6 +225,38 @@ int main() {
         CHECK(store.saveCount == 1); // quit still saved
     }
 
+    // Reading a lore note: `use` prints the note's text, keeps the note
+    // (re-readable any number of times), and neither consumes it nor
+    // touches any stat. Seeded worlds surface notes through the
+    // applyWorldSeed cache spots; here one is placed directly so the
+    // loop's read path itself is deterministic.
+    {
+        keepsake::world::World world = keepsake::world::World::createDefault();
+        Character player;
+        Progress progress;
+        progress.location = "chapel";
+        if (keepsake::world::Location *chapelRoom = world.find("chapel")) {
+            chapelRoom->itemIds.push_back("note.watch_log");
+        }
+        RecordingStore store;
+
+        std::istringstream in("look\ntake watch log page\nuse watch log "
+                             "page\nuse watch log page\ninventory\nquit\n");
+        std::ostringstream out;
+        keepsake::ui::run(world, player, progress, store, in, out);
+
+        const std::string text = out.str();
+        CHECK(text.find("You take the watch log page.") != std::string::npos);
+        CHECK(text.find("You read the watch log page:") != std::string::npos);
+        // The registry's actual note body reached the player.
+        CHECK(text.find("undercroft door") != std::string::npos);
+        // Twice-read, still held: nothing consumed, no stat moved.
+        CHECK(player.itemCount("note.watch_log") == 1);
+        CHECK(player.attack == 4 && player.defense == 1);
+        CHECK(keepsake::quest::hasFlag(progress,
+                                       "item.taken.chapel.note.watch_log"));
+    }
+
     std::cout << "ui_test " << (g_failures ? "FAILED" : "OK") << "\n";
     return g_failures ? 1 : 0;
 }

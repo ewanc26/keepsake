@@ -25,6 +25,13 @@ struct ItemDef {
     int healAmount = 0;
     int attackBonus = 0;
     int defenseBonus = 0;
+    // A readable item is a lore note (journal pages, inscriptions): `use`
+    // prints its description and keeps it — it can be re-read any number
+    // of times and is never consumed. Orthogonal to the existing rules:
+    // readable items have no bonuses and aren't consumables. See the
+    // note.* items in character.cpp and the seeded cache spots in
+    // world.cpp — which of them your world contains is up to your seed.
+    bool readable = false;
 };
 
 const ItemDef *findItemDef(const std::string &id);

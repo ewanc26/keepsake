@@ -12,6 +12,9 @@
 #include "util/xdg.hpp"
 #include "world/world.hpp"
 
+// Generated at configure time (see CMakeLists.txt) — not in src/ tree.
+#include "keepsake/version.hpp"
+
 #if defined(KEEPSAKE_WITH_WOLFRAM)
 #include "oauth/oauth_flow.hpp"
 #include "oauth/profile_lookup.hpp"
@@ -36,6 +39,7 @@ void printUsage() {
            "  npcs on|off             Turn accounts you follow into "
            "in-world mentions\n"
 #endif
+           "  version                 Show the version and build id\n"
            "  help     Show this message\n";
 }
 
@@ -102,6 +106,11 @@ int main(int argc, char **argv) {
         return 0;
     }
 #endif
+    if (command == "version" || command == "--version" || command == "-V") {
+        std::cout << "keepsake " << KEEPSAKE_VERSION << " (build "
+                  << KEEPSAKE_BUILD_ID << ")\n";
+        return 0;
+    }
     if (command == "help" || command == "-h" || command == "--help") {
         printUsage();
         return 0;

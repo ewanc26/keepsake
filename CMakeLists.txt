@@ -42,13 +42,47 @@ set(KEEPSAKE_SOURCES
 # access, and are always registered regardless of KEEPSAKE_WITH_WOLFRAM.
 enable_testing()
 
+# ===========================================================================
+# Build identifiers (see AGENTS.md: "a release must never ship without build
+# identifiers present"). The project version and a build id are stamped at
+# configure time into a generated version.hpp every target and test can
+# include. Since CI isn't recording commit SHAs of the artifacts it builds,
+# the 6-character short SHA of the configured tree is the fallback
+# identifier AGENTS.md names — resolved locally at configure time so even
+# an untagged, unintercepted local build still carries one. Git missing
+# entirely (an exported tarball) degrades to the literal "unknown", which
+# the changeset policy says should be replaced by the release tag.
+# ===========================================================================
+find_package(Git QUIET)
+set(KEEPSAKE_GIT_SHA "unknown")
+if(GIT_FOUND)
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} rev-parse --short=6 HEAD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE KEEPSAKE_GIT_SHA
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        RESULT_VARIABLE keepsake_git_result)
+    if(NOT keepsake_git_result EQUAL 0)
+        set(KEEPSAKE_GIT_SHA "unknown")
+    endif()
+endif()
+configure_file(src/version.hpp.in
+               ${CMAKE_CURRENT_BINARY_DIR}/generated/keepsake/version.hpp
+               @ONLY)
+# Generated headers live in the build tree next to src/; every target adds
+# this directory alongside the src/ root so #include "keepsake/version.hpp"
+# resolves.
+set(KEEPSAKE_GENERATED_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
+
 function(keepsake_add_test name)
     add_executable(${name} test/${name}.cpp ${ARGN})
-    target_include_directories(${name} PRIVATE src)
+    target_include_directories(${name} PRIVATE
+        ${KEEPSAKE_GENERATED_INCLUDE_DIR} src)
     add_test(NAME ${name} COMMAND ${name})
 endfunction()
 
 keepsake_add_test(quest_test src/quest/quest.cpp)
+keepsake_add_test(version_test)
 keepsake_add_test(character_test src/entity/character.cpp)
 keepsake_add_test(combat_test src/combat/combat.cpp src/entity/character.cpp)
 keepsake_add_test(json_test src/save/json.cpp)
@@ -122,7 +156,8 @@ endif()
 
 add_executable(keepsake ${KEEPSAKE_SOURCES})
 
-target_include_directories(keepsake PRIVATE src)
+target_include_directories(keepsake PRIVATE
+    ${KEEPSAKE_GENERATED_INCLUDE_DIR} src)
 
 if(KEEPSAKE_WITH_WOLFRAM)
     find_package(Threads REQUIRED)

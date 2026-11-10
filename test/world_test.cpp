@@ -280,6 +280,29 @@ int main() {
         CHECK(!stillThere);
     }
 
+    // applyWorldSeed: across a spread of seeds, readable lore notes really
+    // do surface — the chapel/crypt-stair/abyssal-stair cache pools carry
+    // them alongside the consumables (deterministic given the fixed
+    // splitmix64 generator, so this assertion is stable).
+    {
+        int worldsWithNotes = 0;
+        for (int i = 0; i < 64; ++i) {
+            World w = World::createDefault();
+            w.applyWorldSeed("note-surface-seeds-" + std::to_string(i));
+            for (const char *id : {"chapel", "crypt_stair", "abyssal_stair"}) {
+                const Location *loc = w.find(id);
+                CHECK(loc != nullptr);
+                for (const auto &item : loc->itemIds) {
+                    if (item.rfind("note.", 0) == 0) {
+                        ++worldsWithNotes;
+                        break;
+                    }
+                }
+            }
+        }
+        CHECK(worldsWithNotes > 0);
+    }
+
     std::cout << "world_test " << (g_failures ? "FAILED" : "OK") << "\n";
     return g_failures ? 1 : 0;
 }

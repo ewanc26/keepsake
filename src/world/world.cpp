@@ -310,12 +310,13 @@ struct CacheSpot {
 const std::vector<CacheSpot> &cacheSpots() {
     static const std::vector<CacheSpot> spots = {
         {"gatehouse", {"health_potion"}},
-        {"chapel", {"health_potion", "silk_gloves"}},
-        {"crypt_stair", {"health_potion", "silk_gloves"}},
+        {"chapel", {"health_potion", "silk_gloves", "note.watch_log"}},
+        {"crypt_stair", {"health_potion", "silk_gloves", "note.crypt_ledger"}},
         {"collapsed_passage", {"health_potion", "silk_gloves"}},
         {"spider_den", {"health_potion", "health_elixir", "silk_gloves"}},
         {"flooded_tunnel", {"health_potion", "health_elixir"}},
-        {"abyssal_stair", {"health_potion"}},
+        {"abyssal_stair",
+         {"health_potion", "note.abyssal_inscription"}},
     };
     return spots;
 }

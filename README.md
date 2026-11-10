@@ -74,6 +74,10 @@ cmake --build build
 
 Pass `-DKEEPSAKE_WITH_WOLFRAM=OFF` for a dependency-free, local-only build.
 
+Every build is stamped at configure time (see
+[CHANGELOG.md](CHANGELOG.md)) with the project version and a 6-character
+short-SHA build id — `keepsake version` prints what any given binary is.
+
 ## Play
 
 ```bash
@@ -84,6 +88,7 @@ Pass `-DKEEPSAKE_WITH_WOLFRAM=OFF` for a dependency-free, local-only build.
 ./build/keepsake events                  # watch the firehose for other players' world events
 ./build/keepsake npcs on                 # show accounts you follow as in-world mentions
 ./build/keepsake npcs off
+./build/keepsake version             # print the version and build id
 ```
 
 `login` prints an authorization URL, opens your browser at it, and waits for
@@ -106,6 +111,10 @@ In-game commands:
 | `save` | Write the current character and progress to disk (or your PDS, if signed in) |
 | `help` | List commands |
 | `quit` | Save and exit |
+
+(Some items are readable — journal pages, inscriptions, the sorts of thing
+the seed decides whether your world contains; `use` reads one aloud, and
+it stays with you to re-read.)
 
 Signed out, progress saves to
 `$XDG_DATA_HOME/keepsake/saves/<identity-hash>.json` (falling back to
@@ -158,7 +167,10 @@ lexicons/
    five locations, so the world you explore is keyed to your identity
    without anything beyond it needing to be saved (cache contents ride
    the same `item.taken.*` flags hand-placed items already use, so taken
-   caches don't respawn). Plus the verifiable
+   caches don't respawn). The same seams carry the readable lore notes —
+   journal pages and inscriptions whose presence and placement are seed
+   luck, so each identity's world tells its own fragment of the keep's
+   story. Plus the verifiable
    `click.croft.rpg.achievement` records, and a brand-new account seeing
    a freshly-forced gate instead of the default worn one
    (`fetchAccountCreatedAt`, verified live against a real account).
