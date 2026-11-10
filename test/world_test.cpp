@@ -227,6 +227,70 @@ int main() {
               1);
     }
 
+    // applyMarkEchoes: the thing below has been learning the mark — its
+    // practice appears on the way down, deterministic from the mark alone.
+    {
+        const std::string mark = "0123456789abcdef";
+        World a = World::createDefault();
+        a.applyMarkEchoes(mark);
+        World b = World::createDefault();
+        b.applyMarkEchoes(mark);
+
+        // Deterministic: the same mark cuts the same echoes into the same
+        // walls.
+        for (const char *id : {"crypt_stair", "abyssal_stair", "abyss"}) {
+            CHECK(a.find(id)->description == b.find(id)->description);
+        }
+
+        // The shallow echo is a short prefix of the mark, and the deeper
+        // practice a longer one — each round less wrong.
+        const std::string &shallow = a.find("crypt_stair")->description;
+        std::string::size_type at = shallow.find("characters: ");
+        CHECK(at != std::string::npos);
+        if (at != std::string::npos) {
+            std::string copied =
+                shallow.substr(at + 12, shallow.find('.', at) - (at + 12));
+            CHECK(copied.size() >= 3 && copied.size() <= 5);
+            CHECK(mark.compare(0, copied.size(), copied) == 0);
+        }
+
+        // The learned echo is the full mark with exactly one character
+        // wrong — never the mark itself, never more than one off.
+        const std::string &abyss = a.find("abyss")->description;
+        bool foundAlmost = false;
+        for (std::string::size_type i = 0; i + mark.size() <= abyss.size(); ++i) {
+            std::string window = abyss.substr(i, mark.size());
+            int wrong = 0;
+            for (std::string::size_type c = 0; c < mark.size(); ++c)
+                wrong += window[c] != mark[c];
+            if (wrong == 1) foundAlmost = true;
+        }
+        CHECK(foundAlmost);
+
+        // A different identity finds different practice carved in.
+        World c = World::createDefault();
+        c.applyMarkEchoes("fedcba9876543210");
+        CHECK(c.find("abyss")->description != abyss);
+    }
+
+    // applyMarkEchoes: idempotent, and a markless world stays unwritten.
+    {
+        World once = World::createDefault();
+        once.applyMarkEchoes("0123456789abcdef");
+        World twice = World::createDefault();
+        twice.applyMarkEchoes("0123456789abcdef");
+        twice.applyMarkEchoes("0123456789abcdef");
+        CHECK(once.find("crypt_stair")->description ==
+              twice.find("crypt_stair")->description);
+        CHECK(once.find("abyss")->description ==
+              twice.find("abyss")->description);
+
+        World bare = World::createDefault();
+        bare.applyMarkEchoes("");
+        CHECK(bare.find("crypt_stair")->description ==
+              World::createDefault().find("crypt_stair")->description);
+    }
+
     // applyWorldSeed: idempotent — applying the same seed twice doesn't
     // duplicate caches or flourish lines.
     {

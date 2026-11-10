@@ -382,6 +382,86 @@ void World::applyWorldSeed(const std::string &worldSeed) {
     }
 }
 
+// The premise's follow-through (see the open letter's warning): the thing
+// below has been learning your mark, and it practices the way anything
+// practices — copying, wrong at first, less wrong each time. Deterministic
+// from the mark itself rather than the worldSeed, because what it has
+// learned is *you*: the same identity always finds the same copies of its
+// own mark cut into the same walls. Derived here, not in main.cpp, so the
+// progression (a shaky prefix, a longer one, then the full mark with one
+// character wrong) is one authored thing with tests.
+
+namespace {
+
+std::string shakilyCopiedPrefix(SeedRng &rng, const std::string &mark,
+                                std::size_t lo, std::size_t hi) {
+    std::size_t take = lo + rng.pick(hi - lo + 1);
+    take = std::min(take, mark.size());
+    return mark.substr(0, take);
+}
+
+// The full mark, with exactly one character replaced by a wrong one — the
+// last tell that this was learned, not taught.
+std::string almostMark(SeedRng &rng, const std::string &mark) {
+    static const char *digits = "0123456789abcdef";
+    std::string copy = mark;
+    if (copy.empty()) return copy;
+    std::size_t at = rng.pick(copy.size());
+    char wrong = digits[rng.pick(16)];
+    while (wrong == copy[at]) wrong = digits[(wrong - '0' + 1) % 16];
+    copy[at] = wrong;
+    return copy;
+}
+
+} // namespace
+
+void World::applyMarkEchoes(const std::string &mark) {
+    if (mark.empty()) return;
+
+    SeedRng rng(fnv1a("echo:" + mark));
+
+    // Append once, like applyWorldSeed's flourish: the echo is derived
+    // identically each run, so its own opening words say whether it is
+    // already on the wall.
+    auto appendOnce = [](Location &loc, const char *marker,
+                         std::string line) {
+        if (loc.description.find(marker) == std::string::npos)
+            loc.description += std::move(line);
+    };
+
+    // The shallow copy: far above the thing, half-guessed.
+    if (Location *loc = find("crypt_stair")) {
+        appendOnce(*loc, "Scratched into the wall at shoulder height",
+            std::string(" Scratched into the wall at shoulder height, in "
+                        "something that dried brown, is a short string of "
+                        "characters: ") +
+            shakilyCopiedPrefix(rng, mark, 3, 5) +
+            ". The strokes are wrong — cut left to right by something "
+            "that had to be told which way reading goes.");
+    }
+
+    // The practice wall: the copy has grown, and grown steadier.
+    if (Location *loc = find("abyssal_stair")) {
+        appendOnce(*loc, "Cut into the stairwell's wall, repeated",
+            std::string(" Cut into the stairwell's wall, repeated down past "
+                        "where your light reaches, each attempt steadier "
+                        "than the last: ") +
+            shakilyCopiedPrefix(rng, mark, 8, 12) +
+            ". The latest attempt is almost clean.");
+    }
+
+    // The learned mark: all but one character right, and the one that's
+    // wrong is wrong in a way you can't stop seeing.
+    if (Location *loc = find("abyss")) {
+        appendOnce(*loc, "And scored across the floor, over and over",
+            std::string(" And scored across the floor, over and over, "
+                        "patient as penance, is your own mark — ") +
+            almostMark(rng, mark) +
+            " — every character yours but one. It wanted you to see "
+            "that it has been paying attention.");
+    }
+}
+
 void World::reconcile(quest::Progress &progress) {
     // `ui::terminal`'s `take` handler sets "item.taken.<locationId>.<itemId>"
     // for every pickup; drop anything so flagged so a taken item doesn't

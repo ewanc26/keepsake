@@ -39,6 +39,18 @@ class World {
     // the same variance once.
     void applyWorldSeed(const std::string &worldSeed);
 
+    // The premise's payoff (see the open letter): the thing below has
+    // been learning your mark, and its practice is cut into the walls —
+    // a shaky partial copy on the crypt stair, a longer steadier one on
+    // the abyssal stair, and in the abyss itself your full mark with
+    // exactly one character wrong. Deterministic from the mark (your
+    // identity's hash, the same one on the lintel) rather than the
+    // worldSeed, because what it learned is you, not this world's dice.
+    // Call once after createDefault(), alongside applyWorldSeed();
+    // idempotent, in the same way — the echoes find their own text
+    // already appended and add nothing.
+    void applyMarkEchoes(const std::string &mark);
+
     const Location *find(const std::string &id) const;
     Location *find(const std::string &id);
 

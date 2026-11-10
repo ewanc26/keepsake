@@ -23,6 +23,14 @@ first tagged release.
 - **Readable lore notes** — journal pages and inscriptions the seed
   decides whether your world contains. `use` reads one aloud; they are
   re-readable and never consumed.
+- **The thing below has been learning your mark** — the open letter's
+  warning, paid off: scratched into the crypt stair is a short, shaking
+  copy of your own mark; the abyssal stair bears a longer, steadier
+  practice wall; and scored across the floor of the abyss is your full
+  mark with exactly one character wrong. The echoes are derived from the
+  mark itself (your identity hash — the same line cut over the gate),
+  so the same identity always finds the same practice on the same walls,
+  signed in or not.
 - **A premise, dramatised** — every world now opens with the open letter
   waiting under a stone in the gatehouse: it names the mystery (the
   "keepsake" is a locket of the old make that remembers names), the

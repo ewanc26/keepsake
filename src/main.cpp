@@ -221,6 +221,14 @@ int main(int argc, char **argv) {
             idHash;
     }
 
+    // The premise's other shoe (see applyMarkEchoes): the thing below has
+    // been learning the mark too — its practice is cut into the walls,
+    // wrong at first and almost right by the abyss. Deliberately beside
+    // the lintel block and outside every KEEPSAKE_WITH_WOLFRAM guard for
+    // the same reason: every build, signed in or not, finds the same
+    // copies of its own save's name on the way down.
+    world.applyMarkEchoes(idHash);
+
 #if defined(KEEPSAKE_WITH_WOLFRAM)
     // Live world events (design roadmap §4): only for signed-in players —
     // signed-out play stays fully offline with zero network activity, and
