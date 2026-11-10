@@ -94,6 +94,12 @@ const std::vector<NpcDef> &npcRegistry() {
                   {
                       {"Why are you here?", "explain", "", ""},
                       {"I didn't come to talk.", "", "", ""},
+                      // Gated on the locket having been taught (see
+                      // ui::terminal's `use silver locket`): the thing
+                      // recognizes a name that is not free for the
+                      // taking before it says a word.
+                      {"Hold up the locket.", "locket_name", "", "",
+                       "locket.taught"},
                   }},
                  {"explain",
                   "\"Something older than the keep wanted out, once. I'm "
@@ -116,6 +122,23 @@ const std::vector<NpcDef> &npcRegistry() {
                   "reaches, and doesn't move again.",
                   {
                       {"...", "", "", ""},
+                  }},
+                 // Only offered when the locket has been taught (see the
+                 // gated option on "start"): the open letter's protection,
+                 // witnessed by the thing that triggered it.
+                 {"locket_name",
+                  "It goes still in a way the room goes still. Whatever "
+                  "practice was in its reaching stops mid-motion, because "
+                  "it can read the hollow as well as anyone: what is kept "
+                  "there is a name that has already been given, to a "
+                  "keeper, on purpose. It has spent longer than you can "
+                  "imagine learning to take. It has never once been "
+                  "taught. \"That,\" it says at last, and its shoulders "
+                  "settle, \"is the one thing down here I cannot wear.\"",
+                  {
+                      {"Let me stand in your place.", "relieve",
+                       "quest.the_nameless.complete", "ring_of_the_watcher"},
+                      {"Keep holding it, and say nothing.", "", "", ""},
                   }},
                  {"goad",
                   "\"Then we're done talking,\" it says, and doesn't wait "
@@ -168,8 +191,17 @@ void run(const NpcDef &npc, entity::Character &player,
     const Node *node = npc.tree.find(npc.tree.startNodeId);
     while (node != nullptr) {
         out << "\n" << node->text << "\n";
-        for (size_t i = 0; i < node->options.size(); ++i) {
-            out << "  " << (i + 1) << ") " << node->options[i].text << "\n";
+        // Options a flag gates out of this conversation are simply not
+        // listed — the numbering the player sees is always dense.
+        std::vector<const Option *> offered;
+        for (const Option &option : node->options) {
+            if (option.requireFlag.empty() ||
+                quest::hasFlag(progress, option.requireFlag)) {
+                offered.push_back(&option);
+            }
+        }
+        for (size_t i = 0; i < offered.size(); ++i) {
+            out << "  " << (i + 1) << ") " << offered[i]->text << "\n";
         }
 
         int choice = -1;
@@ -182,14 +214,13 @@ void run(const NpcDef &npc, entity::Character &player,
             } catch (...) {
                 choice = -1;
             }
-            if (choice >= 1 &&
-                static_cast<size_t>(choice) <= node->options.size()) {
+            if (choice >= 1 && static_cast<size_t>(choice) <= offered.size()) {
                 break;
             }
             out << "That's not one of your options.\n";
         }
 
-        const Option &chosen = node->options[static_cast<size_t>(choice) - 1];
+        const Option &chosen = *offered[static_cast<size_t>(choice) - 1];
         applyOption(chosen, player, progress, out, npc.name);
         if (chosen.nextNodeId.empty()) {
             node = nullptr;

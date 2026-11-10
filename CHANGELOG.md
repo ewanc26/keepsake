@@ -42,6 +42,14 @@ first tagged release.
   second use reads back what it knows, and the learned name survives in
   the save's flags. A character with no mark yet finds the locket
   waiting, not full of air.
+- **The abyss reads the locket** — with the locket taught, the Nameless
+  Thing's conversation opens one option more: hold it up, and the thing
+  reads the hollow the way anyone can — a name that has been *given*, to
+  a keeper, on purpose — and names, at last, the one thing down here it
+  cannot wear. The doorway out is the peaceful one it already offered.
+  Dialogue options can now be gated on a quest flag (`requireFlag`),
+  which keeps them and their numbering out of every conversation that
+  has not earned them.
 - **A premise, dramatised** — every world now opens with the open letter
   waiting under a stone in the gatehouse: it names the mystery (the
   "keepsake" is a locket of the old make that remembers names), the

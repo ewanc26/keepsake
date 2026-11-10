@@ -201,6 +201,43 @@ int main() {
         CHECK(!keepsake::quest::hasFlag(progress2, "quest.the_bell.started"));
     }
 
+    // The abyss acknowledges a taught locket: the gated option (the
+    // requireFlag field, exercised here against real content) only
+    // appears while the flag is set, and it leads to the thing reading
+    // the hollow and standing down the peaceful way.
+    //
+    // Unlocked gate: an untaught locket hides the option, and the
+    // numbering stays dense — no gap where the option would have been.
+    {
+        const NpcDef *thing = findNpcDef("nameless_thing");
+        CHECK(thing != nullptr);
+        Progress plain;
+        Character player;
+        std::istringstream in("1\n2\n");
+        std::ostringstream out;
+        run(*thing, player, plain, in, out);
+        CHECK(out.str().find("Hold up the locket.") == std::string::npos);
+        CHECK(out.str().find("cannot wear") == std::string::npos);
+    }
+
+    // Taught gate: the option appears, numbering stays dense, and the
+    // locket's witness resolves the last quest peacefully.
+    {
+        const NpcDef *thing = findNpcDef("nameless_thing");
+        Progress taught;
+        keepsake::quest::setFlag(taught, "locket.taught");
+        Character player;
+        std::istringstream in("3\n1\n1\n");
+        std::ostringstream out;
+        run(*thing, player, taught, in, out);
+
+        CHECK(out.str().find("Hold up the locket.") != std::string::npos);
+        CHECK(out.str().find("the one thing down here I cannot wear") !=
+              std::string::npos);
+        CHECK(keepsake::quest::hasFlag(taught, "quest.the_nameless.complete"));
+        CHECK(player.itemCount("ring_of_the_watcher") == 1);
+    }
+
     std::cout << "dialogue_test " << (g_failures ? "FAILED" : "OK") << "\n";
     return g_failures ? 1 : 0;
 }

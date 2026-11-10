@@ -19,6 +19,12 @@ struct Option {
     std::string setFlag;
     // Empty means no item is given.
     std::string giveItemId;
+    // Empty means the option is always offered (the common case); otherwise
+    // the option only appears while this quest flag is set. The one flag a
+    // player can set outside a dialogue is the locket's — see
+    // ui::terminal's `use silver locket` — which is what lets the abyss
+    // acknowledge what the locket holds.
+    std::string requireFlag;
 };
 
 struct Node {
@@ -43,8 +49,9 @@ struct NpcDef {
 const NpcDef *findNpcDef(const std::string &id);
 
 // Drives an interactive conversation: prints node text and numbered
-// options to `out`, reads a choice from `in`, applies setFlag/giveItemId,
-// and follows nextNodeId until an option with no nextNodeId is chosen.
+// options (skipping any whose requireFlag is not met) to `out`, reads a
+// choice from `in`, applies setFlag/giveItemId, and follows nextNodeId
+// until an option with no nextNodeId is chosen.
 void run(const NpcDef &npc, entity::Character &player,
          quest::Progress &progress, std::istream &in, std::ostream &out);
 
