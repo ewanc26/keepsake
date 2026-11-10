@@ -20,8 +20,10 @@ const std::vector<ItemDef> &itemRegistry() {
          "Cracked and stiff with age, but it still turns a blow.", false, 0,
          0, 2},
         {"silver_locket", "silver locket",
-         "Tarnished silver, warm despite the cold down here. The Watcher's "
-         "keepsake — you'd know it anywhere.",
+         "Tarnished silver, warm despite the cold down here. Tilted to "
+         "the light, the hollow inside holds a shape you half remember "
+         "carving over a gate you have never seen before tonight: yours. "
+         "It remembers names, and it has begun with yours.",
          false, 0, 0, 0},
         {"silk_gloves", "silk gloves",
          "Woven from spider-silk, near-weightless, and stronger than they "
@@ -47,6 +49,26 @@ const std::vector<ItemDef> &itemRegistry() {
         // the default world — they surface through the worldSeed's seeded
         // cache spots in world.cpp, so each identity's world tells its own
         // fragment of the keep's story.
+        // The premise (see README's Concept and the Watcher's dialogue):
+        // every world opens with the open letter waiting in the gatehouse
+        // — no seed gates it — which names the mystery, the stakes, and
+        // the DID hook before the player's first turn is over.
+        {"note.open_letter", "open letter",
+         "To whoever is holding this: I am sorry. A door below opened on "
+         "my watch, because a door must, eventually, open for somebody. "
+         "The keepsake they carried off is a locket of the old make — the "
+         "kind that remembers names, and the kind that must not be taught "
+         "a wrong one. It was not taken for its silver. It was taken by "
+         "something that lost its own name before your grandparents were "
+         "born, and understands nothing except that the world remembers "
+         "everyone except it, and it is finished with that. You will find "
+         "a line of characters cut over the gate that belongs to you and "
+         "nobody else — signed, sealed, or dreaming, it was waiting here "
+         "before you were. That mark is your claim on this place, and "
+         "teaching it to the locket is your protection, and its whole "
+         "danger. Do not let the thing below learn it first. It will "
+         "begin politely — they always begin politely. — the last "
+         "keeper's hand", false, 0, 0, 0, true},
         {"note.watch_log", "watch log page",
          "Night 400-odd. The bell went quiet at moonset and nobody went "
          "up. I told them it was a bird; I have been telling myself that "

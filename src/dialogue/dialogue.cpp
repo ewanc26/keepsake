@@ -21,9 +21,11 @@ const std::vector<NpcDef> &npcRegistry() {
              "start",
              {
                  {"start",
-                  "An old man leans on a broken pike, watching the gate. "
-                  "\"Another wanderer,\" he says. \"Come to pick through "
-                  "the bones of the place, or come to help?\"",
+                  "An old man leans on a broken pike, watching the gate "
+                  "rather than you, the way a man watches a door he has "
+                  "no key for. \"Another one,\" he says. \"They all come "
+                  "for the letter. Did you read yours, or just come "
+                  "anyway?\"",
                   {
                       {"What happened here?", "lore", "", ""},
                       {"I'll help, if I can.", "accept",
@@ -33,12 +35,15 @@ const std::vector<NpcDef> &npcRegistry() {
                        ""},
                   }},
                  {"lore",
-                  "\"The keep held the Wardens once, and this—\" he lifts "
-                  "a tarnished locket on a cord around his neck, empty "
-                  "now. \"My mother's. Taken the night something came up "
-                  "out of the undercroft and didn't leave. Been sitting "
-                  "on that gate ever since, waiting for someone with a "
-                  "sword and no better sense.\"",
+                  "\"The keep held the Wardens once — the ones the letter "
+                  "means by the old keepers. This—\" he lifts a cord around "
+                  "his neck with nothing on it. \"My mother's locket hung "
+                  "here. It remembers names, that make. Whatever came up "
+                  "out of the undercroft that night didn't take silver — "
+                  "it took the only thing down here that could give it "
+                  "back what it lost. I've been sitting on this gate ever "
+                  "since, being a name it can't have instead. Sooner or "
+                  "later it comes back for one of ours.\"",
                   {
                       {"I'll get it back.", "accept",
                        "quest.keep_cleared.started", "health_potion"},
@@ -46,8 +51,9 @@ const std::vector<NpcDef> &npcRegistry() {
                   }},
                  {"accept",
                   "He presses a small clay vial into your hand. \"Careful "
-                  "going down. Whatever's there now isn't just an "
-                  "animal.\"",
+                  "going down. Whatever's there isn't an animal — it's a "
+                  "somebody who lost theirs, and it has been practicing "
+                  "being us for a long time. Don't tell it your mark.\"",
                   {
                       {"I'll be careful.", "", "", ""},
                   }},

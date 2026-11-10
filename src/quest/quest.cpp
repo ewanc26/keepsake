@@ -16,18 +16,20 @@ void setFlag(Progress &progress, const std::string &flag) {
 const std::vector<QuestDef> &allQuests() {
     static const std::vector<QuestDef> quests = {
         {"keep_cleared", "The Weight Below",
-         "The Watcher's keepsake was taken by whatever now nests in the "
-         "undercroft. Go and take it back.",
+         "Something living in the keep's undercroft took the Watcher's "
+         "locket — the keepsake that remembers names. Take it back before "
+         "whatever is wearing it learns to wear yours.",
          "quest.keep_cleared.started", "quest.keep_cleared.complete"},
         {"the_keepsake", "What the Deep Kept",
-         "The undercroft was only the antechamber. Whatever took the "
-         "Watcher's keepsake carried it further down still — into the "
-         "crypt below, and whatever the Rot Warden guards there.",
+         "The locket wasn't taken for its silver, and it didn't wander: it "
+         "was carried down, past the crypt, to the vault the Rot Warden "
+         "keeps shut — carried like a key looking for its keyhole, and "
+         "the keyhole is a name.",
          "quest.the_keepsake.started", "quest.the_keepsake.complete"},
         {"the_nameless", "The Last Door",
-         "Beneath the vault the Rot Warden kept sealed, a stair goes down "
-         "further still, to whatever the Rot Warden itself was guarding "
-         "against.",
+         "The vault's last guardian is the thing the open letter warned "
+         "you about: nameless, patient, and it begins politely. Decide "
+         "what it deserves — the locket's memory, or your answer.",
          "quest.the_nameless.started", "quest.the_nameless.complete"},
         // Side quest, started only through the Watcher's "tower"
         // dialogue node (see dialogue.cpp) and completed by defeating the

@@ -128,9 +128,12 @@ int main() {
         // Readable lore notes: every seeded note id resolves, and all of
         // them are readable with no combat or healing effect — pure text
         // the seed decides whether your world contains (see world.cpp's
-        // cacheSpots, which references these ids by string).
+        // cacheSpots, which references these ids by string). The open
+        // letter is the exception: it is premise content, placed in the
+        // gatehouse by createDefault() in every world (premise must never
+        // be seed-gated storytelling).
         for (const char *noteId :
-             {"note.watch_log", "note.crypt_ledger",
+             {"note.open_letter", "note.watch_log", "note.crypt_ledger",
               "note.abyssal_inscription"}) {
             const ItemDef *note = findItemDef(noteId);
             CHECK(note != nullptr);
@@ -143,6 +146,19 @@ int main() {
                 CHECK(!note->description.empty());
                 CHECK(!note->name.empty());
             }
+        }
+
+        // The premise letter specifically: it names the mystery (the
+        // locket that remembers names), the stakes (the thing below lost
+        // its own name and wants yours), and the identity hook (the mark
+        // over the gate) — the first minute's hook, in item form.
+        const ItemDef *letter = findItemDef("note.open_letter");
+        CHECK(letter != nullptr);
+        if (letter != nullptr) {
+            const std::string text = letter->description;
+            CHECK(text.find("remembers names") != std::string::npos);
+            CHECK(text.find("over the gate") != std::string::npos);
+            CHECK(text.find("begin politely") != std::string::npos);
         }
     }
 

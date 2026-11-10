@@ -257,6 +257,35 @@ int main() {
                                        "item.taken.chapel.note.watch_log"));
     }
 
+    // The opening (the premise): the banner hooks the letter, the
+    // gatehouse carries it, and the first-minute experience is reading it
+    // — take and re-read work on turn one, while the world stays intact.
+    {
+        keepsake::world::World world = keepsake::world::World::createDefault();
+        Character player;
+        Progress progress;
+        RecordingStore store;
+
+        std::istringstream in("look\ntake open letter\nuse open letter\n"
+                             "use open letter\nquit\n");
+        std::ostringstream out;
+        keepsake::ui::run(world, player, progress, store, in, out);
+
+        std::string text = out.str();
+        CHECK(text.find("You came because of the letter.") !=
+              std::string::npos);
+        CHECK(text.find("You take the open letter.") != std::string::npos);
+        CHECK(text.find("You read the open letter:") != std::string::npos);
+        // The letter's premise beats survive to the player verbatim.
+        CHECK(text.find("remembers names") != std::string::npos);
+        CHECK(text.find("begin politely") != std::string::npos);
+        // Re-readable, never consumed, no stat moved.
+        CHECK(player.itemCount("note.open_letter") == 1);
+        CHECK(player.attack == 4 && player.defense == 1);
+        CHECK(keepsake::quest::hasFlag(
+            progress, "item.taken.gatehouse.note.open_letter"));
+    }
+
     std::cout << "ui_test " << (g_failures ? "FAILED" : "OK") << "\n";
     return g_failures ? 1 : 0;
 }

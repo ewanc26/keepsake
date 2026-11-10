@@ -24,26 +24,35 @@ up.
 
 ## Concept
 
-You explore a small, ruined keep — and, once you clear it, the crypt buried
-beneath it, and beneath that, whatever the crypt's own guardian was itself
-guarding — as a `wf`-flavoured text adventure: rooms, NPCs, three bosses,
-a three-part quest chasing down the Watcher's stolen keepsake to its
-source, and a side quest in the watchtower: the Watcher will tell you about
-a carrion crow that has folded itself over the keep's bell and won't be
-argued off, if you ask him what else needs looking at — the bell is yours
-to take back (complete with the brass the crow made off with), and nothing
-in the main line ever requires it. The ending isn't fixed: the last boss
-can be reasoned with as easily as
-fought, and the game reacts to whichever the player chooses rather than
-funneling both toward one outcome. Signed in, your character sheet and
-quest progress are ordinary records in your own PDS repo — the game follows
-your DID to any machine you sign into, and no Keepsake server ever needs to
-exist. Defeating (or, for the last one, talking down) a boss writes a
-`click.croft.rpg.achievement` record (verifiable by anyone, directly from
-your repo) and a `click.croft.rpg.event` record broadcasting it over the
-firehose — the beginning of a shared world where other players' actions
-could someday
-ripple into yours.
+You came because of the letter — everyone does. It's waiting under a stone
+in the gatehouse, and it explains the game in one page: the keep's
+"keepsake" is a locket of the old make, the kind that *remembers names*. It
+wasn't stolen for its silver; it was carried off by something that lost its
+own name before your grandparents were born and has decided it is finished
+with being the only thing the world doesn't remember. And a line of
+characters has been cut over the gate — your characters, whether you
+arrived signed-in or nameless, there before you were. That mark is your
+claim on this place, the name of your save file made narrative — and
+teaching it to the locket is your protection and, the letter warns, your
+whole danger: *do not let the thing below learn it first. It will begin
+politely.*
+
+So: a `wf`-flavoured text adventure through a small, ruined keep — and,
+once you clear it, the crypt buried beneath it, and beneath that, whatever
+the crypt's own guardian was itself guarding — rooms, NPCs, three bosses, a
+three-part descent chasing the locket to the thing that wants it, an
+optional side quest in the watchtower (a crow has folded itself over the
+keep's bell and won't be argued off; the Watcher will tell you about it if
+you ask what else needs looking at). The ending isn't fixed: the last boss
+can be reasoned with as easily as fought, and the game reacts to whichever
+the player chooses rather than funneling both toward one outcome. Signed
+in, your character sheet and quest progress are ordinary records in your
+own PDS repo — the game follows your DID to any machine you sign into, and
+no Keepsake server ever needs to exist. Defeating (or, for the last one,
+talking down) a boss writes a `click.croft.rpg.achievement` record
+(verifiable by anyone, directly from your repo) and an event record
+broadcasting it over the firehose — the beginning of a shared world where
+other players' actions could someday ripple into yours.
 
 ## Identity
 

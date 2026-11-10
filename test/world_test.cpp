@@ -303,6 +303,36 @@ int main() {
         CHECK(worldsWithNotes > 0);
     }
 
+    // The open letter is premise content, never seed-gated: every
+    // default world carries it in the gatehouse — before any seed is
+    // applied, and after whichever seed applies — and it reacts to
+    // reconcile()'s ordinary taken-item mechanics like anything else.
+    {
+        World plain = World::createDefault();
+        CHECK(plain.find("gatehouse")->itemIds.size() == 1);
+        CHECK(plain.find("gatehouse")->itemIds[0] == "note.open_letter");
+
+        for (const std::string &seed : {"alpha", "beta", "gamma", "delta"}) {
+            World w = World::createDefault();
+            w.applyWorldSeed(seed);
+            const Location *gatehouse = w.find("gatehouse");
+            CHECK(gatehouse != nullptr);
+            bool hasLetter = false;
+            for (const auto &item : gatehouse->itemIds) {
+                if (item == "note.open_letter") hasLetter = true;
+            }
+            CHECK(hasLetter);
+        }
+
+        // And once taken, it stays taken — the generic flag mechanics.
+        Progress p;
+        keepsake::quest::setFlag(p, "item.taken.gatehouse.note.open_letter");
+        World reloaded = World::createDefault();
+        reloaded.applyWorldSeed("alpha");
+        reloaded.reconcile(p);
+        CHECK(reloaded.find("gatehouse")->itemIds.empty());
+    }
+
     std::cout << "world_test " << (g_failures ? "FAILED" : "OK") << "\n";
     return g_failures ? 1 : 0;
 }

@@ -151,7 +151,8 @@ void run(world::World &world, entity::Character &player,
         current = world.find(progress.location);
     }
 
-    out << "== Keepsake ==\n";
+    out << "== Keepsake ==\n"
+           "You came because of the letter. Everyone does.\n";
     printLocation(*current, out);
 
     std::string line;

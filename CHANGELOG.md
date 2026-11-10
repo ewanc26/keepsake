@@ -23,6 +23,14 @@ first tagged release.
 - **Readable lore notes** — journal pages and inscriptions the seed
   decides whether your world contains. `use` reads one aloud; they are
   re-readable and never consumed.
+- **A premise, dramatised** — every world now opens with the open letter
+  waiting under a stone in the gatehouse: it names the mystery (the
+  "keepsake" is a locket of the old make that remembers names), the
+  stakes (something below lost its own name and has decided to wear
+  someone else's), and the identity hook — the player's own save-file
+  identifier, cut into the lintel over the gate in every build, signed
+  in or not. The opening, the Watcher, and the quest beats were rewritten
+  around it.
 - **Live world events while playing** — signed-in play drains the
   firehose subscription between turns as "(Elsewhere)" ambient lines
   (`sync::EventBridge`), display-only by design.

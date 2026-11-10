@@ -13,10 +13,12 @@ World World::createDefault() {
     w.locations_["gatehouse"] = Location{
         "gatehouse",
         "the Gatehouse",
-        "The gate hangs open on one hinge, rust weeping down the stone. "
-        "Someone has been sitting watch here for a long time.",
+        "The gate hangs open on one hinge, and it was not forced — "
+        "whoever opened it was let in. A letter lies just past the "
+        "threshold, weighted under a stone, dry despite the weather, as "
+        "though the watch that ran this tower only just stepped inside.",
         {{"north", "courtyard"}},
-        {},
+        {"note.open_letter"},
         std::nullopt,
         std::nullopt,
         {},

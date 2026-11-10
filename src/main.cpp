@@ -201,6 +201,26 @@ int main(int argc, char **argv) {
     }
 #endif
 
+    // The premise's identity hook: the open letter (see the gatehouse and
+    // entity::Character's note.open_letter) tells the player a line of
+    // characters is cut over the gate that belongs to them alone. This is
+    // that line — identity::hash() is the same value that anchors the save
+    // file (a DID-derived hash signed in, the local stand-in otherwise),
+    // so the mark on the gate is, quite literally, the name of the save.
+    // Applied here — after the flavor block above, which reassigns rather
+    // than appends and would otherwise write over the mark for brand-new
+    // accounts — and deliberately outside every KEEPSAKE_WITH_WOLFRAM
+    // block: every build, signed in or not, arrives to find the gate
+    // already knows it. Every run, new character or loaded — the mark was
+    // waiting here before the player was.
+    if (auto *gatehouse = world.find("gatehouse")) {
+        gatehouse->description +=
+            " And over the gate, cut cleanly into the lintel as if by "
+            "someone who knew you were coming, is a line of characters "
+            "you have never seen before and have always known:\n  " +
+            idHash;
+    }
+
 #if defined(KEEPSAKE_WITH_WOLFRAM)
     // Live world events (design roadmap §4): only for signed-in players —
     // signed-out play stays fully offline with zero network activity, and
