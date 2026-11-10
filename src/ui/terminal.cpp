@@ -252,6 +252,32 @@ void run(world::World &world, entity::Character &player,
                 // consumed, not applied, just read.
                 out << "You read the " << def->name << ":\n"
                     << def->description << "\n";
+            } else if (def->id == "silver_locket") {
+                // The open letter's protection (see note.open_letter):
+                // the locket must be taught a name, and the name that is
+                // yours to teach is your own mark — the worldSeed it
+                // already wanders under. One-way: a name, once learned,
+                // is not unlearned.
+                if (quest::hasFlag(progress, "locket.taught")) {
+                    out << "The locket already knows you. Tilted to the "
+                           "light, the shape in its hollow is your mark, "
+                           "cut small, and permanent — the one it will "
+                           "remember.\n";
+                } else if (player.worldSeed.empty()) {
+                    out << "You open the locket's hollow and hold it "
+                           "up — but no mark comes to your lips, "
+                           "yours or anyone's. It waits.\n";
+                } else {
+                    quest::setFlag(progress, "locket.taught");
+                    out << "You open the locket's hollow, tilt it to "
+                           "the light, and speak your own mark into "
+                           "it, the one cut over the gate:\n  "
+                        << player.worldSeed
+                        << "\nSomething inside settles, the way a "
+                           "door does when it finally has a name to "
+                           "keep out. Whatever owed a name in this "
+                           "keep, it now owes you yours.\n";
+                }
             } else {
                 out << "Nothing happens, but it feels important to keep.\n";
             }

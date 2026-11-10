@@ -286,6 +286,54 @@ int main() {
             progress, "item.taken.gatehouse.note.open_letter"));
     }
 
+    // Teaching the locket (the premise's protection): use it and its hollow
+    // learns your mark — the worldSeed this character wanders under — once,
+    // with the second use reading back what it already knows.
+    {
+        keepsake::world::World world = keepsake::world::World::createDefault();
+        Character player;
+        player.worldSeed = "0123456789abcdef";
+        player.addItem("silver_locket");
+        Progress progress;
+        RecordingStore store;
+
+        std::istringstream in("use silver locket\nuse silver locket\n"
+                             "quests\nquit\n");
+        std::ostringstream out;
+        keepsake::ui::run(world, player, progress, store, in, out);
+
+        std::string text = out.str();
+        // The first use teaches it the mark, and the mark is the whole mark.
+        CHECK(text.find("speak your own mark into") != std::string::npos);
+        CHECK(text.find("0123456789abcdef") != std::string::npos);
+        // The teaching is one-way and not consumed.
+        CHECK(text.find("already knows you") != std::string::npos);
+        CHECK(player.itemCount("silver_locket") == 1);
+        CHECK(keepsake::quest::hasFlag(progress, "locket.taught"));
+        // The flag survives into the save — the locket's memory is the
+        // save's memory.
+        CHECK(keepsake::quest::hasFlag(store.lastSaved.progress,
+                                       "locket.taught"));
+    }
+
+    // An unnamed character — no worldSeed yet — cannot teach what they do
+    // not have; the locket waits instead of learning empty air.
+    {
+        keepsake::world::World world = keepsake::world::World::createDefault();
+        Character player;
+        player.addItem("silver_locket");
+        Progress progress;
+        RecordingStore store;
+
+        std::istringstream in("use silver locket\nquit\n");
+        std::ostringstream out;
+        keepsake::ui::run(world, player, progress, store, in, out);
+
+        std::string text = out.str();
+        CHECK(text.find("no mark comes to your lips") != std::string::npos);
+        CHECK(!keepsake::quest::hasFlag(progress, "locket.taught"));
+    }
+
     std::cout << "ui_test " << (g_failures ? "FAILED" : "OK") << "\n";
     return g_failures ? 1 : 0;
 }

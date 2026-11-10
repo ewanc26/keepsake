@@ -36,6 +36,12 @@ first tagged release.
   completed properly: cut clean beside the attempts that taught it, your
   full mark, every character correct, and nothing added since. The
   wrong-carved record is never erased — only finished.
+- **Teaching the locket** — the open letter's other instruction, now a
+  verb: `use silver locket` speaks your own mark into the hollow (the
+  identity hash this save already wanders under), once and one-way — the
+  second use reads back what it knows, and the learned name survives in
+  the save's flags. A character with no mark yet finds the locket
+  waiting, not full of air.
 - **A premise, dramatised** — every world now opens with the open letter
   waiting under a stone in the gatehouse: it names the mystery (the
   "keepsake" is a locket of the old make that remembers names), the
