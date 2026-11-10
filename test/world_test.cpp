@@ -291,6 +291,42 @@ int main() {
               World::createDefault().find("crypt_stair")->description);
     }
 
+    // resolveMarkEchoes: once the quest completes, the learning ends and
+    // the mark is finished properly — cut clean, every character correct,
+    // beside the attempts that taught it.
+    {
+        const std::string mark = "0123456789abcdef";
+        World done = World::createDefault();
+        done.applyMarkEchoes(mark);
+        done.resolveMarkEchoes(mark);
+
+        const std::string &abyss = done.find("abyss")->description;
+        std::string::size_type at = abyss.find("every character correct:\n  ");
+        CHECK(at != std::string::npos);
+        CHECK(abyss.find(mark) != std::string::npos);
+        // The wrong one is still there — the record of the learning is
+        // never erased, only finished.
+        std::string::size_type almost = abyss.find("patient as penance");
+        CHECK(almost != std::string::npos && almost < at);
+
+        // Idempotent, and the unresolved world never shows the clean cut.
+        World twice = World::createDefault();
+        twice.applyMarkEchoes(mark);
+        twice.resolveMarkEchoes(mark);
+        twice.resolveMarkEchoes(mark);
+        CHECK(twice.find("abyss")->description == abyss);
+
+        World waiting = World::createDefault();
+        waiting.applyMarkEchoes(mark);
+        CHECK(waiting.find("abyss")->description.find("Cut clean for the first time") == std::string::npos);
+
+        // Deterministic across identities' resolutions, too.
+        World other = World::createDefault();
+        other.applyMarkEchoes("fedcba9876543210");
+        other.resolveMarkEchoes("fedcba9876543210");
+        CHECK(other.find("abyss")->description != abyss);
+    }
+
     // applyWorldSeed: idempotent — applying the same seed twice doesn't
     // duplicate caches or flourish lines.
     {

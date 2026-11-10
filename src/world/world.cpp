@@ -462,6 +462,27 @@ void World::applyMarkEchoes(const std::string &mark) {
     }
 }
 
+void World::resolveMarkEchoes(const std::string &mark) {
+    if (mark.empty()) return;
+    SeedRng rng(fnv1a("echo:" + mark));
+    // Consume the same draws applyMarkEchoes made, so the learned string
+    // this resolves against is the one already on the floor.
+    (void)shakilyCopiedPrefix(rng, mark, 3, 5);
+    (void)shakilyCopiedPrefix(rng, mark, 8, 12);
+    (void)almostMark(rng, mark);
+
+    if (Location *loc = find("abyss")) {
+        static const char marker[] = "Cut clean for the first time";
+        if (loc->description.find(marker) == std::string::npos) {
+            loc->description +=
+                " Cut clean for the first time — steady, unpracticed, "
+                "finished the way a hand finishes what it was leaving "
+                "behind — is your own mark, every character correct:\n  " +
+                mark + "\nNothing has been added since.";
+        }
+    }
+}
+
 void World::reconcile(quest::Progress &progress) {
     // `ui::terminal`'s `take` handler sets "item.taken.<locationId>.<itemId>"
     // for every pickup; drop anything so flagged so a taken item doesn't

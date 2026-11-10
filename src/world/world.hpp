@@ -51,6 +51,15 @@ class World {
     // already appended and add nothing.
     void applyMarkEchoes(const std::string &mark);
 
+    // The mark-echoes' endpoint: once the Nameless Thing is done (either
+    // branch of quest.the_nameless sets the same flag), the practice
+    // stops and the mark is finished properly — the wrong character cut
+    // again, correct, beside the attempts that taught it. Same
+    // determinism as applyMarkEchoes: the resolution is derived from the
+    // mark, and its own opening words make it idempotent. Call it after
+    // reconcile(), only when quest.the_nameless.complete is set.
+    void resolveMarkEchoes(const std::string &mark);
+
     const Location *find(const std::string &id) const;
     Location *find(const std::string &id);
 

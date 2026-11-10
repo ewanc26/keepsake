@@ -31,6 +31,11 @@ first tagged release.
   mark itself (your identity hash — the same line cut over the gate),
   so the same identity always finds the same practice on the same walls,
   signed in or not.
+- **The mark, finished** — once the Nameless Thing is done with (either
+  branch of the last quest), the learning stops and the practice is
+  completed properly: cut clean beside the attempts that taught it, your
+  full mark, every character correct, and nothing added since. The
+  wrong-carved record is never erased — only finished.
 - **A premise, dramatised** — every world now opens with the open letter
   waiting under a stone in the gatehouse: it names the mystery (the
   "keepsake" is a locket of the old make that remembers names), the

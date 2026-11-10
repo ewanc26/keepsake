@@ -229,6 +229,14 @@ int main(int argc, char **argv) {
     // copies of its own save's name on the way down.
     world.applyMarkEchoes(idHash);
 
+    // And once the thing below is done with (either branch of the
+    // last quest sets the same flag), the practice is finished
+    // properly — see World::resolveMarkEchoes.
+    if (keepsake::quest::hasFlag(data.progress,
+                                 "quest.the_nameless.complete")) {
+        world.resolveMarkEchoes(idHash);
+    }
+
 #if defined(KEEPSAKE_WITH_WOLFRAM)
     // Live world events (design roadmap §4): only for signed-in players —
     // signed-out play stays fully offline with zero network activity, and
