@@ -115,7 +115,81 @@ int main() {
         CHECK(decodeEventRecord(garbage, sizeof(garbage), decoded) == false);
     }
 
-    // 6) formatRemoteEvent — the line shape EventBridge's drained events
+    // 6) A multi-block CAR — closer to a real commit's `blocks`, which
+    //     carries several records; wf_car_find_block must pick the one the
+    //     op's CID names, not the first one that parses.
+    {
+        const char *otherJson =
+            "{\"kind\":\"enemyDefeated\",\"locationId\":\"abyss\","
+            "\"detail\":\"Different event, same CAR.\","
+            "\"createdAt\":\"2026-01-01T00:00:00Z\"}";
+
+        unsigned char *otherCbor = nullptr;
+        size_t otherCborLen = 0;
+        CHECK(wf_record_encode_json("click.croft.rpg.event", &kEventSchema,
+                                    otherJson, &otherCbor,
+                                    &otherCborLen) == WF_OK);
+
+        wf_cid otherCid{};
+        CHECK(wf_cid_of_block(otherCbor, otherCborLen, &otherCid) == WF_OK);
+
+        wf_car_block blocks[2]{};
+        blocks[0].cid = cid;
+        blocks[0].data = cbor;
+        blocks[0].data_len = cborLen;
+        blocks[1].cid = otherCid;
+        blocks[1].data = otherCbor;
+        blocks[1].data_len = otherCborLen;
+
+        wf_car twoBlocks{};
+        twoBlocks.roots = &cid;
+        twoBlocks.root_count = 1;
+        twoBlocks.blocks = blocks;
+        twoBlocks.block_count = 2;
+
+        unsigned char *twoCarBytes = nullptr;
+        size_t twoCarLen = 0;
+        CHECK(wf_car_write(&twoBlocks, &twoCarBytes, &twoCarLen) == WF_OK);
+
+        wf_car parsedTwo{};
+        CHECK(wf_car_parse(twoCarBytes, twoCarLen, &parsedTwo) == WF_OK);
+
+        wf_car_block *first = wf_car_find_block(&parsedTwo, &cid);
+        CHECK(first != nullptr);
+        if (first != nullptr) {
+            DecodedEvent decoded;
+            CHECK(decodeEventRecord(first->data, first->data_len, decoded));
+            CHECK(decoded.detail == "The Hollow Knight has fallen.");
+        }
+
+        wf_car_block *second = wf_car_find_block(&parsedTwo, &otherCid);
+        CHECK(second != nullptr);
+        if (second != nullptr) {
+            DecodedEvent decoded;
+            CHECK(decodeEventRecord(second->data, second->data_len,
+                                     decoded));
+            CHECK(decoded.locationId == "abyss");
+        }
+
+        wf_car_free(&parsedTwo);
+        std::free(twoCarBytes);
+        std::free(otherCbor);
+    }
+
+    // 7) EventBridge's offline-safe lifecycle: constructing one, draining
+    //    an empty queue, and stopping without ever starting must all be
+    //    safe — exactly the path a signed-in session that never gets a
+    //    subscription going (or ends the moment one is requested) runs.
+    //    No network access: start() is never called.
+    {
+        keepsake::sync::EventBridge bridge;
+        CHECK(bridge.drain().empty());
+        bridge.stop();
+        bridge.stop(); // second stop() is guaranteed safe too
+        CHECK(bridge.drain().empty());
+    }
+
+    // 8) formatRemoteEvent — the line shape EventBridge's drained events
     //    print as, and `keepsake events` has always printed.
     {
         RemoteEvent remote{

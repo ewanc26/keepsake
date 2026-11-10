@@ -26,6 +26,19 @@ class World {
     // quest.
     void reconcile(quest::Progress &progress);
 
+    // Deterministic worldSeed-driven variance (design roadmap §3's deeper
+    // world-generation variance — the gatehouse flavor swap in main.cpp was
+    // the only seed-derived content before this). Given the same worldSeed
+    // (see entity::Character, set at creation from identity::hash()) this
+    // always produces the same world: a couple of hidden caches tucked into
+    // seeded locations, plus a seeded description flourish. Call it once
+    // after createDefault(), before reconcile() — the placements are
+    // re-derived identically every run, so the generic `item.taken.<loc>.<item>`
+    // flags reconcile() already drops items on keep seeded caches from
+    // respawning after they're taken. Idempotent: calling it twice applies
+    // the same variance once.
+    void applyWorldSeed(const std::string &worldSeed);
+
     const Location *find(const std::string &id) const;
     Location *find(const std::string &id);
 

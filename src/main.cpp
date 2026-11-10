@@ -144,6 +144,10 @@ int main(int argc, char **argv) {
     }
 
     keepsake::world::World world = keepsake::world::World::createDefault();
+    // World-generation variance (design roadmap §3): the seeded caches and
+    // flourishes apply to local play too — the worldSeed is the local
+    // identity hash there — not just to signed-in accounts.
+    world.applyWorldSeed(data.character.worldSeed);
     world.reconcile(data.progress);
 
 #if defined(KEEPSAKE_WITH_WOLFRAM)

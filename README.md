@@ -145,12 +145,17 @@ lexicons/
    PDS reads/writes are implemented and reasoned through, but exercising
    them end to end needs an actual `keepsake login` run by a human — an
    agent can't click "Authorize" on someone's behalf.
-3. **Dynamic tuning** — done, modestly. The DID-seeded `worldSeed`,
-   verifiable `click.croft.rpg.achievement` records, and a brand-new
-   account seeing a freshly-forced gate instead of the default worn one
-   (`fetchAccountCreatedAt`, verified live against a real account) are all
-   in. Deeper world-*generation* variance from account signal, beyond this
-   one flavor swap, is still just the design's idea.
+3. **Dynamic tuning** — done, modestly. The DID-seeded `worldSeed`
+   drives real world-generation variance in every session, signed in or
+   not: `World::applyWorldSeed()` deterministically tucks two hidden
+   caches into seeded rooms and a seeded description flourish into one of
+   five locations, so the world you explore is keyed to your identity
+   without anything beyond it needing to be saved (cache contents ride
+   the same `item.taken.*` flags hand-placed items already use, so taken
+   caches don't respawn). Plus the verifiable
+   `click.croft.rpg.achievement` records, and a brand-new account seeing
+   a freshly-forced gate instead of the default worn one
+   (`fetchAccountCreatedAt`, verified live against a real account).
 4. **Shared world** — mostly done. Quest completion broadcasts a
    `click.croft.rpg.event` record. `keepsake events` watches the firehose
    for them (connect/retry/stop lifecycle confirmed against the real
