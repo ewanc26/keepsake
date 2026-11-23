@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "identity/identity.hpp"
+#include "save/bundle.hpp"
 #include "save/save.hpp"
 #include "sync/local_record_store.hpp"
 #include "ui/terminal.hpp"
@@ -30,6 +31,14 @@ void printUsage() {
            "Commands:\n"
            "  (none)   Play — synced to your PDS if signed in, local "
            "otherwise\n"
+           "  play [--offline]        Play; --offline ignores a signed-in "
+           "session\n"
+           "  offline                 Play from this device's local save "
+           "only\n"
+           "  export <path> [--offline]  Write a portable character "
+           "bundle\n"
+           "  import <path> [--force] [--offline]  Load a bundle into this "
+           "account\n"
 #if defined(KEEPSAKE_WITH_WOLFRAM)
            "  login <handle-or-did>   Sign in with your AT Protocol handle\n"
            "  logout                  Forget the saved session\n"
@@ -41,6 +50,44 @@ void printUsage() {
 #endif
            "  version                 Show the version and build id\n"
            "  help     Show this message\n";
+}
+
+bool hasArg(int argc, char **argv, const char *flag) {
+    for (int i = 2; i < argc; ++i) {
+        if (std::string(argv[i]) == flag) return true;
+    }
+    return false;
+}
+
+// One backend selection path for play, export and import. Offline forces the
+// local store even when a session exists, so no XRPC read is attempted.
+std::unique_ptr<keepsake::sync::RecordStore>
+openRecordStore(bool offline, std::string &signedInDid) {
+    signedInDid.clear();
+    std::unique_ptr<keepsake::sync::RecordStore> store;
+#if defined(KEEPSAKE_WITH_WOLFRAM)
+    if (!offline) {
+        std::string error;
+        auto wolframStore = keepsake::sync::WolframRecordStore::open(error);
+        if (wolframStore) {
+            std::cout << "Signed in as " << wolframStore->did() << "\n";
+            signedInDid = wolframStore->did();
+            store = std::move(wolframStore);
+        }
+    }
+#endif
+    if (!store) {
+        store = std::make_unique<keepsake::sync::LocalRecordStore>(
+            keepsake::identity::hash());
+    }
+    return store;
+}
+
+void printNewerSave(int foundSchema) {
+    std::cerr << "This character was written by a newer Keepsake (save schema "
+              << foundSchema << "; this build understands "
+              << keepsake::save::kCurrentSchemaVersion
+              << "). Update Keepsake to use it; nothing has been changed.\n";
 }
 
 } // namespace
@@ -115,33 +162,123 @@ int main(int argc, char **argv) {
         printUsage();
         return 0;
     }
+
+    // A global modifier rather than a separate flag parser: the commands are
+    // few and every one of them takes at most one path argument.
+    const bool forceOffline =
+        hasArg(argc, argv, "--offline") || command == "offline";
+
+    if (command == "export") {
+        if (argc < 3 || std::string(argv[2]).rfind("--", 0) == 0) {
+            std::cerr << "Usage: keepsake export <path> [--offline]\n";
+            return 1;
+        }
+        std::string signedInDid;
+        auto store = openRecordStore(forceOffline, signedInDid);
+
+        keepsake::save::SaveData data;
+        const keepsake::save::LoadStatus status = store->load(data);
+        if (status == keepsake::save::LoadStatus::NewerSchema) {
+            printNewerSave(data.schemaVersion);
+            return 1;
+        }
+        if (status != keepsake::save::LoadStatus::Loaded) {
+            std::cerr << "No character to export here. Play a session first, "
+                         "or pass --offline to export the local save.\n";
+            return 1;
+        }
+
+        keepsake::save::Bundle bundle;
+        bundle.exportedFrom = keepsake::identity::hash();
+        bundle.exportedAt = keepsake::util::isoNow();
+        bundle.save = data;
+        if (!keepsake::save::writeBundle(argv[2], bundle)) {
+            std::cerr << "Could not write the bundle to " << argv[2] << ".\n";
+            return 1;
+        }
+        std::cout << "Exported " << data.character.className << " level "
+                  << data.character.level << " (save schema "
+                  << data.schemaVersion << ") to " << argv[2]
+                  << ". The character's worldSeed stays pinned on import.\n";
+        return 0;
+    }
+
+    if (command == "import") {
+        if (argc < 3 || std::string(argv[2]).rfind("--", 0) == 0) {
+            std::cerr << "Usage: keepsake import <path> [--force] "
+                         "[--offline]\n";
+            return 1;
+        }
+        keepsake::save::Bundle bundle;
+        const keepsake::save::BundleStatus bundleStatus =
+            keepsake::save::readBundle(argv[2], bundle);
+        if (bundleStatus == keepsake::save::BundleStatus::NewerBundle) {
+            std::cerr << "This bundle was written by a newer Keepsake. "
+                         "Update Keepsake to import it; the file has not been "
+                         "changed.\n";
+            return 1;
+        }
+        if (bundleStatus == keepsake::save::BundleStatus::NewerSchema) {
+            std::cerr << "This bundle carries a character written by a newer "
+                         "Keepsake. Update Keepsake instead of downgrading "
+                         "the character.\n";
+            return 1;
+        }
+        if (bundleStatus != keepsake::save::BundleStatus::Loaded) {
+            std::cerr << "Could not read a Keepsake bundle from " << argv[2]
+                      << ".\n";
+            return 1;
+        }
+
+        std::string signedInDid;
+        auto store = openRecordStore(forceOffline, signedInDid);
+        keepsake::save::SaveData existing;
+        const keepsake::save::LoadStatus current = store->load(existing);
+        if (current == keepsake::save::LoadStatus::NewerSchema) {
+            printNewerSave(existing.schemaVersion);
+            return 1;
+        }
+        // Cross-device conflict rules arrive with #8. Until then import is an
+        // explicit, last-write-wins replacement and must be asked for.
+        if (current == keepsake::save::LoadStatus::Loaded &&
+            !hasArg(argc, argv, "--force")) {
+            std::cerr << "This account already has a character. Pass --force "
+                         "to replace it with the bundle.\n";
+            return 1;
+        }
+        if (!store->save(bundle.save)) {
+            std::cerr << "Could not write the imported character to this "
+                         "account.\n";
+            return 1;
+        }
+
+        std::cout << "Imported " << bundle.save.character.className
+                  << " level " << bundle.save.character.level << " (save "
+                  << "schema " << bundle.save.schemaVersion << ")";
+        if (!bundle.exportedFrom.empty()) {
+            std::cout << " from " << bundle.exportedFrom;
+        }
+        std::cout << ". The worldSeed and its seeded world stay pinned to the "
+                     "character; gate marks, practiced echoes and "
+                     "followed-account mentions follow this identity.\n";
+        return 0;
+    }
+
+    if (command == "play" || command == "offline") command.clear();
     if (!command.empty()) {
         std::cerr << "Unknown command: " << command << "\n\n";
         printUsage();
         return 1;
     }
 
-    std::unique_ptr<keepsake::sync::RecordStore> store;
     std::string signedInDid;
-#if defined(KEEPSAKE_WITH_WOLFRAM)
-    {
-        std::string error;
-        auto wolframStore = keepsake::sync::WolframRecordStore::open(error);
-        if (wolframStore) {
-            std::cout << "Signed in as " << wolframStore->did() << "\n";
-            signedInDid = wolframStore->did();
-            store = std::move(wolframStore);
-        }
-    }
-#endif
+    std::unique_ptr<keepsake::sync::RecordStore> store =
+        openRecordStore(forceOffline, signedInDid);
 
     // identity::hash() already prefers the signed-in DID (it reads the
     // same session file directly — see identity.cpp) so this is correct
     // whichever backend ended up selected above.
     const std::string idHash = keepsake::identity::hash();
-    if (!store) {
-        store = std::make_unique<keepsake::sync::LocalRecordStore>(idHash);
-    }
 
     keepsake::save::SaveData data;
     const keepsake::save::LoadStatus loadStatus = store->load(data);
