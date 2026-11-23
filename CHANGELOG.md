@@ -4,10 +4,10 @@ All notable changes to Keepsake are documented here. The version is
 stamped into every build (see CMakeLists.txt's generated
 `keepsake/version.hpp` and `keepsake version` for what a given binary is).
 
-## Unreleased
+## 0.4.0 - 2026-11-23
 
-Everything below is on `main` since the first playable state, ahead of the
-first tagged release.
+First tagged release. Everything below is on `main` since the first playable
+state.
 
 ### Added
 
