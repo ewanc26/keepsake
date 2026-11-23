@@ -82,6 +82,14 @@ first tagged release.
 
 ### Changed
 
+- **Versioned identity derivation** — the character's `worldSeed` is now the
+  documented SHA-256 KDF (`be64(version) || DID || aspect`) instead of the
+  ad-hoc FNV-1a identity hash, and every character records the
+  `derivationVersion` beside its seed. Existing characters keep their stored
+  seed and are stamped version 0 (legacy) by the v2 save migration; new ones
+  use version 1 and the `world` aspect. `keepsake seeds [did]` prints the
+  exact values for a bug report. A future derivation bump is an explicit
+  world fork, never a silent one.
 - **Wolfram v0.45.0** — the FetchContent pin moved from v0.44.2 to
   v0.45.0. The public surface Keepsake uses is unchanged, including the
   CAR/firehose decode path.

@@ -29,9 +29,26 @@ void migrateV0ToV1(Json &record) {
     record.set("schemaVersion", 1);
 }
 
+void migrateV1ToV2(Json &record) {
+    // v1 characters carried no derivationVersion. Their worldSeed was the
+    // legacy FNV-1a identity hash, which is version 0 of the derivation —
+    // stamping that is honest: it names what actually produced the seed and
+    // never re-derives the world. Progress records have no character object
+    // and are only stamped with the schema version.
+    record.set("schemaVersion", 2);
+    const Json *character = record.find("character");
+    if (character != nullptr && character->isObject()) {
+        Json stamped = *character;
+        if (stamped.find("derivationVersion") == nullptr) {
+            stamped.set("derivationVersion", 0);
+        }
+        record.set("character", std::move(stamped));
+    }
+}
+
 using Migration = void (*)(Json &);
 
-constexpr Migration kMigrations[] = {migrateV0ToV1};
+constexpr Migration kMigrations[] = {migrateV0ToV1, migrateV1ToV2};
 constexpr int kMigrationCount =
     static_cast<int>(sizeof(kMigrations) / sizeof(kMigrations[0]));
 static_assert(kMigrationCount == kCurrentSchemaVersion - kInitialSchemaVersion,

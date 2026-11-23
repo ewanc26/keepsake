@@ -11,7 +11,8 @@ namespace keepsake::save {
 inline constexpr int kInitialSchemaVersion = 0;
 
 // Bump this whenever the stored shape changes, and add one migration below.
-inline constexpr int kCurrentSchemaVersion = 1;
+// v2 stamps Character::derivationVersion (0 for the pre-#10 FNV-1a seed).
+inline constexpr int kCurrentSchemaVersion = 2;
 
 enum class SchemaStatus {
     Current,  // already at kCurrentSchemaVersion
