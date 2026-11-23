@@ -33,7 +33,9 @@ int g_failures = 0;
 // snapshot, and every achievement/event broadcast handed to it.
 class RecordingStore : public keepsake::sync::RecordStore {
   public:
-    bool load(keepsake::save::SaveData &) override { return false; }
+    keepsake::save::LoadStatus load(keepsake::save::SaveData &) override {
+        return keepsake::save::LoadStatus::Missing;
+    }
     bool save(const keepsake::save::SaveData &data) override {
         lastSaved = data;
         ++saveCount;

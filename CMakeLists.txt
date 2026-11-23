@@ -27,6 +27,7 @@ set(KEEPSAKE_SOURCES
     src/identity/identity.cpp
     src/save/json.cpp
     src/save/save.cpp
+    src/save/schema.cpp
     src/sync/local_record_store.cpp
     src/world/world.cpp
     src/entity/character.cpp
@@ -87,8 +88,10 @@ keepsake_add_test(character_test src/entity/character.cpp)
 keepsake_add_test(combat_test src/combat/combat.cpp src/entity/character.cpp)
 keepsake_add_test(json_test src/save/json.cpp)
 keepsake_add_test(save_test
-    src/save/json.cpp src/save/save.cpp src/util/xdg.cpp
+    src/save/json.cpp src/save/save.cpp src/save/schema.cpp src/util/xdg.cpp
     src/entity/character.cpp src/quest/quest.cpp)
+target_compile_definitions(save_test PRIVATE
+    WF_TEST_FIXTURE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures")
 keepsake_add_test(dialogue_test
     src/dialogue/dialogue.cpp src/entity/character.cpp src/quest/quest.cpp)
 keepsake_add_test(identity_test
@@ -102,7 +105,8 @@ keepsake_add_test(ui_test
     src/dialogue/dialogue.cpp)
 keepsake_add_test(local_record_store_test
     src/sync/local_record_store.cpp src/save/json.cpp src/save/save.cpp
-    src/util/xdg.cpp src/entity/character.cpp src/quest/quest.cpp)
+    src/save/schema.cpp src/util/xdg.cpp src/entity/character.cpp
+    src/quest/quest.cpp)
 
 if(KEEPSAKE_WITH_WOLFRAM)
     # Build only what the OAuth/sync layer needs — no server, no bundled

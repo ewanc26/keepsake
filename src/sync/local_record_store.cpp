@@ -5,7 +5,7 @@ namespace keepsake::sync {
 LocalRecordStore::LocalRecordStore(std::string identityHash)
     : path_(save::savePathFor(identityHash)) {}
 
-bool LocalRecordStore::load(save::SaveData &out) {
+save::LoadStatus LocalRecordStore::load(save::SaveData &out) {
     return save::readSave(path_, out);
 }
 

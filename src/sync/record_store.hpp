@@ -15,10 +15,11 @@ class RecordStore {
   public:
     virtual ~RecordStore() = default;
 
-    // Returns false if there is nothing to load yet (a brand-new
-    // identity), not on error — callers should treat that as "start a new
-    // character", not as a fault.
-    virtual bool load(save::SaveData &out) = 0;
+    // Missing is the ordinary "brand-new identity" state and means "start a
+    // new character". NewerSchema means the save was written by a build ahead
+    // of this one: the caller must refuse to play rather than overwrite it.
+    // Invalid keeps the old start-a-new-character behaviour.
+    virtual save::LoadStatus load(save::SaveData &out) = 0;
     virtual bool save(const save::SaveData &data) = 0;
 
     // Broadcasts a verifiable, portable milestone (click.croft.rpg.achievement)

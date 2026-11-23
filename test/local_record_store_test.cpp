@@ -9,7 +9,9 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include "entity/character.hpp"
 #include "sync/local_record_store.hpp"
@@ -48,7 +50,7 @@ int main() {
     {
         LocalRecordStore store("1234567890abcdef");
         SaveData data;
-        CHECK(!store.load(data));
+        CHECK(store.load(data) == keepsake::save::LoadStatus::Missing);
     }
 
     // save() then load() round trips through the store's own identity-
@@ -70,7 +72,8 @@ int main() {
 
         LocalRecordStore store("1234567890abcdef");
         SaveData loaded;
-        CHECK(store.load(loaded));
+        CHECK(store.load(loaded) == keepsake::save::LoadStatus::Loaded);
+        CHECK(loaded.schemaVersion == keepsake::save::kCurrentSchemaVersion);
         CHECK(loaded.character.level == 2);
         CHECK(loaded.character.worldSeed == "1234567890abcdef");
         CHECK(loaded.character.itemCount("health_potion") == 2);
@@ -82,7 +85,7 @@ int main() {
         keepsake::sync::RecordStore &asBase = store;
         CHECK(asBase.save(data));
         SaveData reloaded;
-        CHECK(asBase.load(reloaded));
+        CHECK(asBase.load(reloaded) == keepsake::save::LoadStatus::Loaded);
         CHECK(reloaded.character.level == 2);
     }
 
@@ -91,7 +94,34 @@ int main() {
     {
         LocalRecordStore other("ffffff000000ffff");
         SaveData data;
-        CHECK(!other.load(data));
+        CHECK(other.load(data) == keepsake::save::LoadStatus::Missing);
+    }
+
+    // A save written by a newer build is refused by status, and loading it
+    // must not rewrite the file or turn it into a fresh character.
+    {
+        LocalRecordStore store("aaaabbbbccccdddd");
+        {
+            std::ofstream out(store.path(), std::ios::trunc);
+            out << "{\"schemaVersion\":"
+                << (keepsake::save::kCurrentSchemaVersion + 1)
+                << ",\"character\":{},\"progress\":{}}\n";
+        }
+
+        std::ifstream beforeIn(store.path());
+        std::ostringstream before;
+        before << beforeIn.rdbuf();
+
+        SaveData data;
+        CHECK(store.load(data) ==
+              keepsake::save::LoadStatus::NewerSchema);
+        CHECK(data.schemaVersion ==
+              keepsake::save::kCurrentSchemaVersion + 1);
+
+        std::ifstream afterIn(store.path());
+        std::ostringstream after;
+        after << afterIn.rdbuf();
+        CHECK(before.str() == after.str());
     }
 
     // recordAchievement/recordEvent defaults are safe no-ops on the local

@@ -1,0 +1,20 @@
+{
+  "character": {
+    "className": "Wanderer",
+    "level": 3,
+    "xp": 17,
+    "hp": 12,
+    "maxHp": 30,
+    "attack": 6,
+    "defense": 2,
+    "worldSeed": "deadbeef",
+    "createdAt": "2026-01-01T00:00:00Z",
+    "inventory": [
+      { "itemId": "health_potion", "count": 2 }
+    ]
+  },
+  "progress": {
+    "location": "gatehouse",
+    "flags": ["quest.keep_cleared.started"]
+  }
+}

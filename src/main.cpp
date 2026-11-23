@@ -144,7 +144,18 @@ int main(int argc, char **argv) {
     }
 
     keepsake::save::SaveData data;
-    bool isNewCharacter = !store->load(data);
+    const keepsake::save::LoadStatus loadStatus = store->load(data);
+    if (loadStatus == keepsake::save::LoadStatus::NewerSchema) {
+        std::cerr << "This character was written by a newer Keepsake (save "
+                     "schema "
+                  << data.schemaVersion << "; this build understands "
+                  << keepsake::save::kCurrentSchemaVersion
+                  << "). Update Keepsake to play it; the save has not been "
+                     "changed.\n";
+        return 1;
+    }
+    const bool isNewCharacter =
+        loadStatus != keepsake::save::LoadStatus::Loaded;
     if (isNewCharacter) {
         data.character = keepsake::entity::Character{};
         data.character.worldSeed = idHash;

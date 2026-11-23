@@ -14,6 +14,11 @@
             "type": "string",
             "description": "Location id within the current world content."
           },
+          "schemaVersion": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Save shape version. Absent means the initial shape, which loads through the migration table."
+          },
           "flags": {
             "type": "array",
             "maxLength": 256,
