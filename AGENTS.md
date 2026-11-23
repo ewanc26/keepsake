@@ -21,6 +21,12 @@ Every Keepsake build carries stamped values from CMake. A release must never shi
 
 ## Working rules
 
+- Portable bundles (`src/save/bundle.hpp`) carry a `keepsakeBundle` version
+  separate from the save schema. Bump it when the envelope changes; the
+  embedded save is still migrated by the #7 table. `worldSeed` and its seeded
+  world are pinned to the character, while DID-derived surfaces (gate mark,
+  practiced echoes, fresh-account flavour, followed-account mentions) follow
+  the importing identity. Import is explicit last-write-wins until #8.
 - Inspect the README, manifests, CI workflows, and nearby code before editing.
 - Preserve existing architecture, naming, formatting, and error-handling conventions.
 - Use project scripts for validation; never claim checks you did not run.

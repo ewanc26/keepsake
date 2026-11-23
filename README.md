@@ -97,6 +97,10 @@ short-SHA build id — `keepsake version` prints what any given binary is.
 
 ```bash
 ./build/keepsake                        # play — synced if signed in, local otherwise
+./build/keepsake play --offline          # play from this device's local save only
+./build/keepsake offline                 # the same, as a single command
+./build/keepsake export <path>           # write a portable character bundle
+./build/keepsake import <path>           # load a bundle into this account (--force replaces)
 ./build/keepsake login <handle-or-did>   # sign in with your AT Protocol handle
 ./build/keepsake whoami                  # show the signed-in DID, if any
 ./build/keepsake logout                  # forget the saved session
@@ -140,6 +144,29 @@ Signed out, progress saves to
 Saves carry a `schemaVersion`. Older saves migrate forward on load through
 one ordered table (`src/save/schema.hpp`), and a save written by a newer
 Keepsake is refused with a message rather than being overwritten.
+
+## Moving a character
+
+`keepsake export <path>` writes a portable JSON bundle: the character and
+progress records at their schema version, the `worldSeed`, and the quest
+flags that make up the local world state. `keepsake import <path>` loads it
+into the current account; an existing character is replaced only with
+`--force`. A bundle or embedded save written by a newer Keepsake is reported
+and left untouched.
+
+The split that makes an imported character recognisably itself:
+
+- **Pinned to the character.** `worldSeed`, the seeded caches and
+description flourishes, inventory, stats and quest flags travel in the
+bundle unchanged.
+- **Follows the importing identity.** The mark over the gate, the practiced
+echoes, the fresh-account gate flavour and followed-account mentions derive
+from the current DID (or local anchor), so they belong to the account the
+character now lives under.
+
+Both commands accept `--offline`, and `keepsake offline` plays from the
+local store even when a session exists. Import is an explicit last-write-wins
+replacement until the cross-device conflict rules land (#8).
 
 ## Project layout
 

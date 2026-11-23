@@ -28,6 +28,7 @@ set(KEEPSAKE_SOURCES
     src/save/json.cpp
     src/save/save.cpp
     src/save/schema.cpp
+    src/save/bundle.cpp
     src/sync/local_record_store.cpp
     src/world/world.cpp
     src/entity/character.cpp
@@ -107,6 +108,10 @@ keepsake_add_test(local_record_store_test
     src/sync/local_record_store.cpp src/save/json.cpp src/save/save.cpp
     src/save/schema.cpp src/util/xdg.cpp src/entity/character.cpp
     src/quest/quest.cpp)
+keepsake_add_test(bundle_test
+    src/save/bundle.cpp src/save/json.cpp src/save/save.cpp
+    src/save/schema.cpp src/sync/local_record_store.cpp src/util/xdg.cpp
+    src/entity/character.cpp src/quest/quest.cpp)
 
 if(KEEPSAKE_WITH_WOLFRAM)
     # Build only what the OAuth/sync layer needs — no server, no bundled

@@ -11,6 +11,13 @@ first tagged release.
 
 ### Added
 
+- **Portable character bundles** — `keepsake export <path>` writes a
+  versioned JSON envelope around the schema-versioned character and progress
+  records, and `keepsake import <path>` loads it into the current account
+  (refusing to replace an existing character without `--force`). Newer
+  bundles and newer saves are reported and never downgraded. `--offline` on
+  either command, plus `keepsake offline` to play, forces the local store so
+  the whole flow works with no network.
 - **Save schema versioning** — `click.croft.rpg.character`/`.progress`
   records and the local save now carry an explicit `schemaVersion`. Saves
   from before the field load through an ordered migration table (absent
