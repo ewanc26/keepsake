@@ -5,7 +5,9 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include "save/save.hpp"
 
@@ -55,7 +57,8 @@ int main() {
 
         Json json = toJson(data);
         SaveData roundTripped;
-        CHECK(fromJson(json, roundTripped));
+        CHECK(fromJson(json, roundTripped) == LoadStatus::Loaded);
+        CHECK(roundTripped.schemaVersion == kCurrentSchemaVersion);
 
         CHECK(roundTripped.character.className == "Wanderer");
         CHECK(roundTripped.character.level == 3);
@@ -79,11 +82,11 @@ int main() {
     {
         SaveData out;
         Json notAnObject = Json::array();
-        CHECK(!fromJson(notAnObject, out));
+        CHECK(fromJson(notAnObject, out) == LoadStatus::Invalid);
 
         Json missingProgress = Json::object();
         missingProgress.set("character", Json::object());
-        CHECK(!fromJson(missingProgress, out));
+        CHECK(fromJson(missingProgress, out) == LoadStatus::Invalid);
 
         Json missingRequiredField = Json::object();
         Json character = Json::object();
@@ -98,7 +101,7 @@ int main() {
         Json progress = Json::object();
         progress.set("location", "gatehouse");
         missingRequiredField.set("progress", std::move(progress));
-        CHECK(!fromJson(missingRequiredField, out));
+        CHECK(fromJson(missingRequiredField, out) == LoadStatus::Invalid);
     }
 
     // savePathFor is namespaced under the identity hash.
@@ -124,13 +127,81 @@ int main() {
         CHECK(writeSave(path, data));
 
         SaveData readBack;
-        CHECK(readSave(path, readBack));
+        CHECK(readSave(path, readBack) == LoadStatus::Loaded);
         CHECK(readBack.character.className == "Wanderer");
         CHECK(readBack.progress.location == "gatehouse");
+        CHECK(readBack.schemaVersion == kCurrentSchemaVersion);
 
-        // readSave fails cleanly on a nonexistent path.
+        // A missing file is the ordinary new-identity state, not a fault.
         SaveData missing;
-        CHECK(!readSave((tempDir / "does_not_exist.json").string(), missing));
+        CHECK(readSave((tempDir / "does_not_exist.json").string(), missing) ==
+              LoadStatus::Missing);
+    }
+
+    // The initial shape, captured as a fixture, loads through the migration
+    // table. Applying the table twice is the same as applying it once, and a
+    // current record is a no-op.
+    {
+        std::ifstream in(std::string(WF_TEST_FIXTURE_DIR) +
+                         "/save/v0-local.json");
+        CHECK(static_cast<bool>(in));
+        std::ostringstream buf;
+        buf << in.rdbuf();
+
+        Json original;
+        CHECK(Json::parse(buf.str(), original));
+
+        Json once = original;
+        Json twice = original;
+        const SchemaResult first = migrateToCurrent(once);
+        const SchemaResult second = migrateToCurrent(twice);
+        CHECK(first.status == SchemaStatus::Migrated);
+        CHECK(first.version == kCurrentSchemaVersion);
+        CHECK(second.status == SchemaStatus::Migrated);
+        CHECK(once.dump() == twice.dump());
+
+        Json again = once;
+        const SchemaResult third = migrateToCurrent(again);
+        CHECK(third.status == SchemaStatus::Current);
+        CHECK(again.dump() == once.dump());
+
+        SaveData v0;
+        CHECK(fromJson(original, v0) == LoadStatus::Loaded);
+        CHECK(v0.schemaVersion == kCurrentSchemaVersion);
+        CHECK(v0.character.className == "Wanderer");
+        CHECK(v0.character.level == 3);
+        CHECK(v0.progress.location == "gatehouse");
+
+        const Json written = toJson(v0);
+        CHECK(written.find("schemaVersion") != nullptr);
+        CHECK(written.find("schemaVersion")->asInt() ==
+              kCurrentSchemaVersion);
+    }
+
+    // A save from a newer build is reported, not downgraded and not rewritten.
+    {
+        Json newer = Json::object();
+        newer.set("schemaVersion", kCurrentSchemaVersion + 1);
+        newer.set("character", Json::object());
+        newer.set("progress", Json::object());
+
+        SaveData out;
+        CHECK(fromJson(newer, out) == LoadStatus::NewerSchema);
+        CHECK(out.schemaVersion == kCurrentSchemaVersion + 1);
+
+        Json untouched = newer;
+        const std::string before = untouched.dump();
+        const SchemaResult result = migrateToCurrent(untouched);
+        CHECK(result.status == SchemaStatus::Newer);
+        CHECK(result.version == kCurrentSchemaVersion + 1);
+        CHECK(untouched.dump() == before);
+    }
+
+    // A version of the wrong type is invalid, not silently v0.
+    {
+        Json wrongType = Json::object();
+        wrongType.set("schemaVersion", "two");
+        CHECK(migrateToCurrent(wrongType).status == SchemaStatus::Invalid);
     }
 
     fs::remove_all(tempDir);

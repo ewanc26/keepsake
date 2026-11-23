@@ -11,6 +11,11 @@
         "required": ["className", "level", "hp", "maxHp", "createdAt"],
         "properties": {
           "className": { "type": "string", "maxLength": 32 },
+          "schemaVersion": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Save shape version. Absent means the initial shape, which loads through the migration table."
+          },
           "level": { "type": "integer", "minimum": 1, "maximum": 99 },
           "xp": { "type": "integer", "minimum": 0, "default": 0 },
           "hp": { "type": "integer", "minimum": 0 },

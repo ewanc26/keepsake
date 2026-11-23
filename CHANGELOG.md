@@ -11,6 +11,12 @@ first tagged release.
 
 ### Added
 
+- **Save schema versioning** — `click.croft.rpg.character`/`.progress`
+  records and the local save now carry an explicit `schemaVersion`. Saves
+  from before the field load through an ordered migration table (absent
+  means the initial shape), a save written by a newer schema is reported
+  and left untouched instead of being downgraded, and host tests run every
+  migration over a fixture of the initial shape.
 - **Seed-driven variance** — the worldSeed (your DID, or the local identity
   stand-in) now shapes world generation every session, signed in or not:
   deterministic hidden caches and a seeded description flourish

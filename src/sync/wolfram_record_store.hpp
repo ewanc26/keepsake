@@ -24,7 +24,7 @@ class WolframRecordStore : public RecordStore {
     // should treat as "fall back to LocalRecordStore", not as a fault.
     static std::unique_ptr<WolframRecordStore> open(std::string &error);
 
-    bool load(save::SaveData &out) override;
+    save::LoadStatus load(save::SaveData &out) override;
     bool save(const save::SaveData &data) override;
     void recordAchievement(const std::string &id,
                            const std::string &name) override;

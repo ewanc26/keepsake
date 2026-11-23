@@ -15,7 +15,7 @@ class LocalRecordStore : public RecordStore {
   public:
     explicit LocalRecordStore(std::string identityHash);
 
-    bool load(save::SaveData &out) override;
+    save::LoadStatus load(save::SaveData &out) override;
     bool save(const save::SaveData &data) override;
 
     const std::string &path() const {

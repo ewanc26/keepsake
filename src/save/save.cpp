@@ -38,34 +38,57 @@ Json toJson(const SaveData &data) {
     progress.set("flags", std::move(flags));
 
     Json root = Json::object();
+    // New records always name the shape this build writes, never a value
+    // carried in from a migrated or stale SaveData.
+    root.set("schemaVersion", kCurrentSchemaVersion);
     root.set("character", std::move(character));
     root.set("progress", std::move(progress));
     return root;
 }
 
-bool fromJson(const Json &json, SaveData &out) {
-    if (!json.isObject()) return false;
+LoadStatus fromJson(const Json &json, SaveData &out) {
+    if (!json.isObject()) return LoadStatus::Invalid;
 
-    const Json *characterJson = json.find("character");
-    const Json *progressJson = json.find("progress");
-    if (characterJson == nullptr || !characterJson->isObject()) return false;
-    if (progressJson == nullptr || !progressJson->isObject()) return false;
+    Json migrated = json;
+    const SchemaResult schema = migrateToCurrent(migrated);
+    if (schema.status == SchemaStatus::Newer) {
+        out.schemaVersion = schema.version;
+        return LoadStatus::NewerSchema;
+    }
+    if (schema.status == SchemaStatus::Invalid) return LoadStatus::Invalid;
+
+    const Json *characterJson = migrated.find("character");
+    const Json *progressJson = migrated.find("progress");
+    if (characterJson == nullptr || !characterJson->isObject()) {
+        return LoadStatus::Invalid;
+    }
+    if (progressJson == nullptr || !progressJson->isObject()) {
+        return LoadStatus::Invalid;
+    }
 
     entity::Character character;
     const Json *v = nullptr;
-    if ((v = characterJson->find("className")) == nullptr) return false;
+    if ((v = characterJson->find("className")) == nullptr) {
+        return LoadStatus::Invalid;
+    }
     character.className = v->asString();
-    if ((v = characterJson->find("level")) == nullptr) return false;
+    if ((v = characterJson->find("level")) == nullptr) return LoadStatus::Invalid;
     character.level = v->asInt();
-    if ((v = characterJson->find("xp")) == nullptr) return false;
+    if ((v = characterJson->find("xp")) == nullptr) return LoadStatus::Invalid;
     character.xp = v->asInt();
-    if ((v = characterJson->find("hp")) == nullptr) return false;
+    if ((v = characterJson->find("hp")) == nullptr) return LoadStatus::Invalid;
     character.hp = v->asInt();
-    if ((v = characterJson->find("maxHp")) == nullptr) return false;
+    if ((v = characterJson->find("maxHp")) == nullptr) {
+        return LoadStatus::Invalid;
+    }
     character.maxHp = v->asInt();
-    if ((v = characterJson->find("attack")) == nullptr) return false;
+    if ((v = characterJson->find("attack")) == nullptr) {
+        return LoadStatus::Invalid;
+    }
     character.attack = v->asInt();
-    if ((v = characterJson->find("defense")) == nullptr) return false;
+    if ((v = characterJson->find("defense")) == nullptr) {
+        return LoadStatus::Invalid;
+    }
     character.defense = v->asInt();
     if ((v = characterJson->find("worldSeed")) != nullptr) {
         character.worldSeed = v->asString();
@@ -85,7 +108,9 @@ bool fromJson(const Json &json, SaveData &out) {
     }
 
     quest::Progress progress;
-    if ((v = progressJson->find("location")) == nullptr) return false;
+    if ((v = progressJson->find("location")) == nullptr) {
+        return LoadStatus::Invalid;
+    }
     progress.location = v->asString();
     if ((v = progressJson->find("flags")) != nullptr && v->isArray()) {
         for (const auto &flag : v->items()) {
@@ -95,7 +120,8 @@ bool fromJson(const Json &json, SaveData &out) {
 
     out.character = std::move(character);
     out.progress = std::move(progress);
-    return true;
+    out.schemaVersion = schema.version;
+    return LoadStatus::Loaded;
 }
 
 std::string savePathFor(const std::string &identityHash) {
@@ -113,14 +139,14 @@ bool writeSave(const std::string &path, const SaveData &data) {
     return static_cast<bool>(out);
 }
 
-bool readSave(const std::string &path, SaveData &out) {
+LoadStatus readSave(const std::string &path, SaveData &out) {
     std::ifstream in(path);
-    if (!in) return false;
+    if (!in) return LoadStatus::Missing;
     std::ostringstream buf;
     buf << in.rdbuf();
 
     Json json;
-    if (!Json::parse(buf.str(), json)) return false;
+    if (!Json::parse(buf.str(), json)) return LoadStatus::Invalid;
     return fromJson(json, out);
 }
 

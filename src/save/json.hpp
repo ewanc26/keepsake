@@ -35,6 +35,9 @@ class Json {
     bool isNull() const;
     bool isObject() const;
     bool isArray() const;
+    // True for a JSON number, so a version field cannot be silently read as
+    // 0 from a string or bool fallback.
+    bool isNumber() const;
 
     // Requires isObject(). Overwrites an existing key if present.
     void set(const std::string &key, Json value);

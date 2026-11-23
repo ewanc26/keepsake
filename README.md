@@ -137,6 +137,10 @@ Signed out, progress saves to
 `click.croft.rpg.character`/`.progress` in your own PDS instead — see
 [Identity](#identity).
 
+Saves carry a `schemaVersion`. Older saves migrate forward on load through
+one ordered table (`src/save/schema.hpp`), and a save written by a newer
+Keepsake is refused with a message rather than being overwritten.
+
 ## Project layout
 
 ```

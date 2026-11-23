@@ -255,6 +255,10 @@ bool Json::isArray() const {
     return std::holds_alternative<Array>(value_);
 }
 
+bool Json::isNumber() const {
+    return std::holds_alternative<double>(value_);
+}
+
 void Json::set(const std::string &key, Json value) {
     auto &obj = std::get<Object>(value_);
     for (auto &entry : obj) {

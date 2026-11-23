@@ -1,6 +1,9 @@
 #include "sync/wolfram_record_store.hpp"
 
+#include <algorithm>
+
 #include "oauth/url_encode.hpp"
+#include "save/schema.hpp"
 #include "util/time.hpp"
 
 namespace keepsake::sync {
@@ -23,6 +26,7 @@ save::Json characterToRecord(const entity::Character &c) {
     record.set("defense", c.defense);
     record.set("worldSeed", c.worldSeed);
     record.set("createdAt", c.createdAt.empty() ? util::isoNow() : c.createdAt);
+    record.set("schemaVersion", save::kCurrentSchemaVersion);
 
     save::Json inventory = save::Json::array();
     for (const auto &stack : c.inventory) {
@@ -74,6 +78,7 @@ save::Json progressToRecord(const quest::Progress &p) {
     for (const auto &flag : p.flags) flags.push(save::Json(flag));
     record.set("flags", std::move(flags));
     record.set("updatedAt", util::isoNow());
+    record.set("schemaVersion", save::kCurrentSchemaVersion);
     return record;
 }
 
@@ -167,28 +172,53 @@ WolframRecordStore::open(std::string &error) {
     return store;
 }
 
-bool WolframRecordStore::load(save::SaveData &out) {
-    if (!session_.valid()) return false;
+save::LoadStatus WolframRecordStore::load(save::SaveData &out) {
+    if (!session_.valid()) return save::LoadStatus::Missing;
 
     save::Json characterValue;
     save::Json progressValue;
     if (!getRecord(session_.client(), session_.did(), kCharacterCollection,
                    characterValue)) {
-        return false;
+        return save::LoadStatus::Missing;
     }
     if (!getRecord(session_.client(), session_.did(), kProgressCollection,
                    progressValue)) {
-        return false;
+        return save::LoadStatus::Missing;
+    }
+
+    // Migrate each record on its own copy. A newer record anywhere in the
+    // pair means this build cannot honestly read the character, so report it
+    // before parsing either shape.
+    save::Json characterRecord = characterValue;
+    save::Json progressRecord = progressValue;
+    const save::SchemaResult characterSchema =
+        save::migrateToCurrent(characterRecord);
+    const save::SchemaResult progressSchema =
+        save::migrateToCurrent(progressRecord);
+    if (characterSchema.status == save::SchemaStatus::Newer ||
+        progressSchema.status == save::SchemaStatus::Newer) {
+        out.schemaVersion =
+            std::max(characterSchema.version, progressSchema.version);
+        return save::LoadStatus::NewerSchema;
+    }
+    if (characterSchema.status == save::SchemaStatus::Invalid ||
+        progressSchema.status == save::SchemaStatus::Invalid) {
+        return save::LoadStatus::Invalid;
     }
 
     entity::Character character;
     quest::Progress progress;
-    if (!recordToCharacter(characterValue, character)) return false;
-    if (!recordToProgress(progressValue, progress)) return false;
+    if (!recordToCharacter(characterRecord, character)) {
+        return save::LoadStatus::Invalid;
+    }
+    if (!recordToProgress(progressRecord, progress)) {
+        return save::LoadStatus::Invalid;
+    }
 
     out.character = std::move(character);
     out.progress = std::move(progress);
-    return true;
+    out.schemaVersion = save::kCurrentSchemaVersion;
+    return save::LoadStatus::Loaded;
 }
 
 bool WolframRecordStore::save(const save::SaveData &data) {
