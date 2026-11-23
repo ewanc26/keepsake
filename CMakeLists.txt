@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(keepsake
-    VERSION 0.2.0
+    VERSION 0.3.0
     DESCRIPTION "A text-based RPG where your AT Protocol DID is the save file"
     LANGUAGES CXX
 )
