@@ -67,6 +67,12 @@ first tagged release.
   a 6-character short-SHA build id (see AGENTS.md's policy); surfaced via
   `keepsake version`.
 
+### Changed
+
+- **Wolfram v0.45.0** — the FetchContent pin moved from v0.44.2 to
+  v0.45.0. The public surface Keepsake uses is unchanged, including the
+  CAR/firehose decode path.
+
 ### Tests
 
 - New suites covering previously untested seams: `character_test`
