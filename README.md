@@ -220,3 +220,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow and the checks required 
 ## Licence
 
 AGPL-3.0
+
+Copyright (C) 2026 Ewan Croft (ewanc26).
