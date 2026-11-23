@@ -24,6 +24,7 @@ set(KEEPSAKE_SOURCES
     src/main.cpp
     src/util/xdg.cpp
     src/util/time.cpp
+    src/util/sha256.cpp
     src/identity/identity.cpp
     src/save/json.cpp
     src/save/save.cpp
@@ -96,8 +97,10 @@ target_compile_definitions(save_test PRIVATE
 keepsake_add_test(dialogue_test
     src/dialogue/dialogue.cpp src/entity/character.cpp src/quest/quest.cpp)
 keepsake_add_test(identity_test
-    src/identity/identity.cpp src/save/json.cpp src/util/xdg.cpp)
+    src/identity/identity.cpp src/util/sha256.cpp src/save/json.cpp
+    src/util/xdg.cpp)
 keepsake_add_test(world_test src/world/world.cpp src/quest/quest.cpp)
+keepsake_add_test(sha256_test src/util/sha256.cpp)
 # ui::run needs no save backend (RecordStore is stubbed in the test) and no
 # sync/ implementation, despite including record_store.hpp.
 keepsake_add_test(ui_test

@@ -49,6 +49,7 @@ int main() {
         data.character.attack = 6;
         data.character.defense = 2;
         data.character.worldSeed = "deadbeef";
+        data.character.derivationVersion = 1;
         data.character.createdAt = "2026-01-01T00:00:00Z";
         data.character.inventory = {ItemStack{"health_potion", 2},
                                     ItemStack{"iron_sword", 1}};
@@ -68,6 +69,7 @@ int main() {
         CHECK(roundTripped.character.attack == 6);
         CHECK(roundTripped.character.defense == 2);
         CHECK(roundTripped.character.worldSeed == "deadbeef");
+        CHECK(roundTripped.character.derivationVersion == 1);
         CHECK(roundTripped.character.createdAt == "2026-01-01T00:00:00Z");
         CHECK(roundTripped.character.inventory.size() == 2);
         CHECK(roundTripped.character.inventory[0].itemId == "health_potion");
@@ -170,6 +172,9 @@ int main() {
         CHECK(v0.schemaVersion == kCurrentSchemaVersion);
         CHECK(v0.character.className == "Wanderer");
         CHECK(v0.character.level == 3);
+        // Pre-#10 characters carry derivation version 0 (the legacy FNV-1a
+        // seed) and are never re-derived by loading them.
+        CHECK(v0.character.derivationVersion == 0);
         CHECK(v0.progress.location == "gatehouse");
 
         const Json written = toJson(v0);

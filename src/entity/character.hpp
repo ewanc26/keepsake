@@ -45,10 +45,16 @@ struct Character {
     int maxHp = 20;
     int attack = 4;
     int defense = 1;
-    // Set at character creation from identity::hash() — see
+    // Set at character creation from identity::deriveSeed("world") — see
     // src/identity/identity.hpp. Phase 3 will use it to bias world
     // generation by account signal instead of just anchoring the save.
     std::string worldSeed;
+    // The identity-derivation version that produced worldSeed: 0 is the
+    // legacy FNV-1a identity hash from before #10, 1 is the current
+    // versioned SHA-256 derivation. Stored with the character so a world
+    // can be attributed to the exact rule that made it, even after the
+    // derivation is bumped; a character's seed is never re-derived.
+    int derivationVersion = 0;
     // Set once at character creation (see util::isoNow()); preserved
     // across saves so a click.croft.rpg.character record's createdAt
     // reflects when the character was actually created, not when it was

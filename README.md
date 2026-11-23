@@ -72,6 +72,22 @@ Signed in, `key()` reads the DID straight out of the persisted OAuth session
 (no network call needed) — every module that already keyed off it needed no
 further change. See `src/identity/identity.hpp`.
 
+The character's `worldSeed` is not an ad-hoc hash. It is the documented,
+versioned derivation
+
+```
+seed(version, key, aspect) = SHA-256( be64(version) || UTF-8(key) || UTF-8(aspect) )
+```
+
+written as lowercase hex, with the version integer first so a changed rule
+can only fork a world, never silently reinterpret an existing one. Version 1
+is current and derives the `world` aspect at character creation; characters
+created before it carry `derivationVersion` 0, the legacy FNV-1a identity
+hash, and keep their stored seed. `keepsake seeds [did]` prints the version,
+the identity and the seeds for the documented aspects, so a bug report can
+name the exact values. Bumping the derivation version is a deliberate world
+fork: existing characters keep their seed, new ones grow a different world.
+
 ## Requirements
 
 - A C++23 compiler (Apple Clang, GCC ≥ 13, or Clang ≥ 16)

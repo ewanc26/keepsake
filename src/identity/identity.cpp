@@ -8,6 +8,7 @@
 #include <sstream>
 
 #include "save/json.hpp"
+#include "util/sha256.hpp"
 #include "util/xdg.hpp"
 
 namespace keepsake::identity {
@@ -96,6 +97,17 @@ std::string hash() {
     std::snprintf(buf, sizeof(buf), "%016llx",
                   static_cast<unsigned long long>(h));
     return std::string(buf);
+}
+
+std::string deriveSeed(uint64_t version, const std::string &identityKey,
+                       const std::string &aspect) {
+    // util::deriveSha256 is the one implementation of the layout documented
+    // in identity.hpp; nothing here re-encodes the input by hand.
+    return util::deriveSha256(version, identityKey, aspect);
+}
+
+std::string deriveSeed(const std::string &aspect) {
+    return deriveSeed(kDerivationVersion, key(), aspect);
 }
 
 } // namespace keepsake::identity

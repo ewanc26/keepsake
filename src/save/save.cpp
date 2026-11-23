@@ -18,6 +18,7 @@ Json toJson(const SaveData &data) {
     character.set("attack", data.character.attack);
     character.set("defense", data.character.defense);
     character.set("worldSeed", data.character.worldSeed);
+    character.set("derivationVersion", data.character.derivationVersion);
     character.set("createdAt", data.character.createdAt);
 
     Json inventory = Json::array();
@@ -92,6 +93,11 @@ LoadStatus fromJson(const Json &json, SaveData &out) {
     character.defense = v->asInt();
     if ((v = characterJson->find("worldSeed")) != nullptr) {
         character.worldSeed = v->asString();
+    }
+    // Absent means a character written before #10: its seed is the legacy
+    // FNV-1a hash, which is derivation version 0, and is never re-derived.
+    if ((v = characterJson->find("derivationVersion")) != nullptr) {
+        character.derivationVersion = v->asInt(0);
     }
     if ((v = characterJson->find("createdAt")) != nullptr) {
         character.createdAt = v->asString();

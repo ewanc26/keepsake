@@ -48,6 +48,8 @@ void printUsage() {
            "  npcs on|off             Turn accounts you follow into "
            "in-world mentions\n"
 #endif
+           "  seeds [did]             Print the versioned identity seeds "
+           "for a DID\n"
            "  version                 Show the version and build id\n"
            "  help     Show this message\n";
 }
@@ -153,6 +155,28 @@ int main(int argc, char **argv) {
         return 0;
     }
 #endif
+    if (command == "seeds") {
+        // Debug surface for the documented derivation (#10): the exact
+        // inputs and outputs of identity::deriveSeed(), so a bug report can
+        // name the values instead of describing a world. No network call —
+        // a DID argument is used verbatim, otherwise the current key().
+        const std::string identityKey =
+            argc > 2 ? std::string(argv[2]) : keepsake::identity::key();
+        std::cout << "derivation version "
+                  << keepsake::identity::kDerivationVersion << "\n"
+                  << "identity " << identityKey << "\n";
+        const char *aspects[] = {keepsake::identity::kWorldSeedAspect,
+                                 keepsake::identity::kMarkAspect,
+                                 keepsake::identity::kFlourishAspect};
+        for (const char *aspect : aspects) {
+            std::cout << "  " << aspect << "  "
+                      << keepsake::identity::deriveSeed(
+                             keepsake::identity::kDerivationVersion,
+                             identityKey, aspect)
+                      << "\n";
+        }
+        return 0;
+    }
     if (command == "version" || command == "--version" || command == "-V") {
         std::cout << "keepsake " << KEEPSAKE_VERSION << " (build "
                   << KEEPSAKE_BUILD_ID << ")\n";
@@ -295,7 +319,14 @@ int main(int argc, char **argv) {
         loadStatus != keepsake::save::LoadStatus::Loaded;
     if (isNewCharacter) {
         data.character = keepsake::entity::Character{};
-        data.character.worldSeed = idHash;
+        // The worldSeed is the documented, versioned derivation (#10), not
+        // the save-anchor hash: the same DID and version produce the same
+        // world on every machine. The version is stored beside it so a
+        // future derivation change is a visible fork, never a silent one.
+        data.character.worldSeed = keepsake::identity::deriveSeed(
+            keepsake::identity::kWorldSeedAspect);
+        data.character.derivationVersion =
+            static_cast<int>(keepsake::identity::kDerivationVersion);
         data.character.createdAt = keepsake::util::isoNow();
         data.progress = keepsake::quest::Progress{};
     }
